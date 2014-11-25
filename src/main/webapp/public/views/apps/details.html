@@ -5,7 +5,7 @@
 <div class="container-fluid" style="margin: 0 auto; width: 960px;">
 	<div class="span6">
 	    <table class="table">
-	     <thead><tr><th>Application</th><th><small class="pull-right"><a href="{{ application.url }}/info">raw JSON</a></small></th></tr></thead>
+	     <thead><tr><th>Application</th><th><small class="pull-right"><a href="{{ instance.url }}/info">raw JSON</a></small></th></tr></thead>
 	    <tbody>
 	      <tr ng-repeat="(key, value) in info" >
 	        <td>{{ key }}</td><td>{{ value }}</td>
@@ -17,7 +17,7 @@
 	 <div class="span6">
 		<table class="table">
 			<thead>
-				<tr><th>Health Checks</th><th><small class="pull-right"><a href="{{ application.url }}/health">raw JSON</a></small></th></tr>
+				<tr><th>Health Checks</th><th><small class="pull-right"><a href="{{ instance.url }}/health">raw JSON</a></small></th></tr>
 			</thead>
 			<tbody>
 				<tr>
@@ -87,7 +87,7 @@
 	
 	<div class="span6">
 	  <table class="table">
-	    <thead><tr><th>JVM</th><th><small class="pull-right"><a href="{{ application.url }}/metrics">raw JSON</a></small></th></tr></thead>
+	    <thead><tr><th>JVM</th><th><small class="pull-right"><a href="{{ instance.url }}/metrics">raw JSON</a></small></th></tr></thead>
 	    <tbody>
 	      <tr ng-if="metrics['systemload.average'] != null && metrics['systemload.average'] >= 0.0">
 	        <td colspan="2">Systemload (last minute average)
@@ -164,10 +164,10 @@
 	  <div class="main-template">
 	    <div id="xd-jobs" class="tab-pane active col-md-12">
 	      <ul class="nav nav-tabs">
-	        <li ui-sref-active="active"><a ui-sref="apps.details.metrics({id: application.id})">Metrics</a></li>
-	        <li ui-sref-active="active"><a ui-sref="apps.details.env({id: application.id})">Environment</a></li>
-	        <li ui-sref-active="active"><a ui-sref="apps.details.props({id: application.id})">Properties</a></li>
-	        <li ui-sref-active="active"><a ui-sref="apps.details.classpath({id: application.id})">Classpath</a></li>
+	        <li ui-sref-active="active"><a ui-sref="apps.details.metrics({id: instance.id})">Metrics</a></li>
+	        <li ui-sref-active="active"><a ui-sref="apps.details.env({id: instance.id})">Environment</a></li>
+	        <li ui-sref-active="active"><a ui-sref="apps.details.props({id: instance.id})">Properties</a></li>
+	        <li ui-sref-active="active"><a ui-sref="apps.details.classpath({id: instance.id})">Classpath</a></li>
 	      </ul>
 	      <div class="tab-content">
 	        <div ui-view></div>

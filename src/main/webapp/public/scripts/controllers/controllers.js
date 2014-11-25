@@ -16,13 +16,15 @@
 'use strict';
 
 angular.module('springBootAdmin')
-       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', 'Applications', 'ApplicationOverview', 'Application',
-                                    function ($scope, $location, $interval, $q, Applications, ApplicationOverview, Application) {
+       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', 'Applications', 'InstanceOverview', 'Instance',
+                                    function ($scope, $location, $interval, $q, Applications, InstanceOverview, Instance) {
   		
     	   $scope.loadData = function() {
   			Applications.query(function(applications) {
   				for (var i = 0; i< applications.length; i++) {
   					(function(app) {
+
+  						/*
   						//find application in known applications and copy state --> less flickering
   						for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
   							if (app.id === $scope.applications[j].id ) {
@@ -33,58 +35,53 @@ angular.module('springBootAdmin')
   								break;
   							}
   						}
-  						app.refreshing = true;
-  						$q.all(ApplicationOverview.getInfo(app), 
-  								ApplicationOverview.getHealth(app), 
-  								ApplicationOverview.getLogfile(app)).finally(function() {
-  							app.refreshing = false;
-  						});
+  						*/
+
+                        for ( var j = 0; app.instances != null && j < app.instances.length; j++ ) {
+                            (function(instance) {
+                                instance.refreshing = true;
+                                $q.all(InstanceOverview.getInfo(instance), InstanceOverview.getLogfile(instance)).finally(function () {
+                                    instance.refreshing = false;
+                                });
+                            })(app.instances[j]);
+                        }
   					})(applications[i]);
 	  			}	
 	  			$scope.applications = applications;
 	  		});
-  		}
+  		};
   		$scope.loadData();
-
-  		$scope.remove = function(application) {
-  			Application.remove({ id: application.id }, function () {
-  				var index = $scope.applications.indexOf(application); 
-  				if (index > -1) {
-  					$scope.applications.splice(index, 1);
-  				}
-  			});
-  		}
   		
   		// reload site every 30 seconds
   		var task = $interval(function() {
   			$scope.loadData();
   		}, 30000);
   	}])
-  	.controller('appsCtrl',  ['$scope', 'application', function ($scope, application) {
-  		$scope.application = application;
+  	.controller('appsCtrl',  ['$scope', 'instance', function ($scope, instance) {
+  		$scope.instance = instance;
   	}])  	
-  	.controller('detailsCtrl', ['$scope', '$interval', 'application', 'ApplicationDetails', 'MetricsHelper',
-  	                            function ($scope, $interval, application, ApplicationDetails, MetricsHelper) {
-  		$scope.application = application;
-  		ApplicationDetails.getInfo(application).success(function(info) {
+  	.controller('detailsCtrl', ['$scope', '$interval', 'instance', 'InstanceDetails', 'MetricsHelper',
+  	                            function ($scope, $interval, instance, InstanceDetails, MetricsHelper) {
+  		$scope.instance = instance;
+  		InstanceDetails.getInfo(instance).success(function(info) {
 			$scope.info = info;
 		}).error( function(error) {
 			$scope.error = error;
 		});
   			
-		ApplicationDetails.getHealth(application).success(function(health) {
+        InstanceDetails.getHealth(instance).success(function(health) {
 			$scope.health = health;
 		}).error( function(health) {
 			$scope.health = health;
 		});
   			
-		ApplicationDetails.getMetrics(application).success(function(metrics) {
+        InstanceDetails.getMetrics(instance).success(function(metrics) {
 			$scope.metrics = metrics;
 			$scope.metrics["mem.used"] = $scope.metrics["mem"] - $scope.metrics["mem.free"];
   				
 			$scope.gcInfos = {};
-			$scope.datasources = {}
-  				
+			$scope.datasources = {};
+
 			function createOrGet(map, key, factory) {
 				return map[key] || (map[key] = factory());
 			}
@@ -114,14 +111,14 @@ angular.module('springBootAdmin')
   			$scope.ticks = Date.now() - start;
   		},1000);
   	}])
-  	.controller('detailsMetricsCtrl',  ['$scope', 'application', 'ApplicationDetails', 'Abbreviator', 'MetricsHelper',
-  	                                    function ($scope, application, ApplicationDetails, Abbreviator, MetricsHelper) {
+  	.controller('detailsMetricsCtrl',  ['$scope', 'instance', 'InstanceDetails', 'Abbreviator', 'MetricsHelper',
+  	                                    function ($scope, instance, InstanceDetails, Abbreviator, MetricsHelper) {
   		$scope.memoryData = [];
   		$scope.heapMemoryData = [];
   		$scope.counterData = [];
   		$scope.gaugeData = [];
   		
-		ApplicationDetails.getMetrics(application).success(function(metrics) {
+        InstanceDetails.getMetrics(instance).success(function(metrics) {
 			//*** Extract data for Counter-Chart and Gauge-Chart
 			$scope.counterData = [ { key : "value", values: [] } ];
 			$scope.gaugeData = [ { key : "value", values: []   }, 
@@ -178,19 +175,19 @@ angular.module('springBootAdmin')
   		}
   		
   	}])
-  	.controller('detailsEnvCtrl',  ['$scope', 'application', 'ApplicationDetails', 
-  	                                function ($scope, application, ApplicationDetails) {
-  		$scope.application = application;
-  		ApplicationDetails.getEnv(application).success(function(env) {
+  	.controller('detailsEnvCtrl',  ['$scope', 'instance', 'InstanceDetails', 
+  	                                function ($scope, instance, InstanceDetails) {
+  		$scope.instance = instance;
+  		InstanceDetails.getEnv(instance).success(function(env) {
 			$scope.env = env;
 		}).error( function(error) {
 			$scope.error = error;
   		});
   	}])
-  	.controller('detailsPropsCtrl', ['$scope', 'application', 'ApplicationDetails', 
-  			function ($scope, application, ApplicationDetails) {
-  		$scope.application = application;
-  		ApplicationDetails.getEnv(application).success(function(env) {
+  	.controller('detailsPropsCtrl', ['$scope', 'instance', 'InstanceDetails', 
+  			function ($scope, instance, InstanceDetails) {
+  		$scope.instance = instance;
+  		InstanceDetails.getEnv(instance).success(function(env) {
 			$scope.props = [];
 			for (var attr in env) {
 				if (attr.indexOf('[') != -1 && attr.indexOf('.properties]') != -1) {
@@ -201,18 +198,18 @@ angular.module('springBootAdmin')
 			$scope.error = error;
 		});
   	}])
-  	.controller('detailsClasspathCtrl',  ['$scope', 'application', 'ApplicationDetails', 'Abbreviator', 
-  	                                      function ($scope, application, ApplicationDetails, Abbreviator) {
-  		$scope.application = application;
-  		ApplicationDetails.getEnv(application).success(function(env) {
+  	.controller('detailsClasspathCtrl',  ['$scope', 'instance', 'InstanceDetails', 'Abbreviator', 
+  	                                      function ($scope, instance, InstanceDetails, Abbreviator) {
+  		$scope.instance = instance;
+  		InstanceDetails.getEnv(instance).success(function(env) {
 			var separator =  env['systemProperties']['path.separator'];
 			$scope.classpath = env['systemProperties']['java.class.path'].split(separator);
 		}).error( function(error) {
 			$scope.error = error;
 		});
   	}])
-  	.controller('loggingCtrl',  ['$scope', 'application', 'ApplicationLogging', 
-  	                             function ($scope, application, ApplicationLogging) {
+  	.controller('loggingCtrl',  ['$scope', 'instance', 'InstanceLogging', 
+  	                             function ($scope, instance, InstanceLogging) {
   		$scope.loggers = [];
   		$scope.filteredLoggers = [];
   		$scope.limit = 10;
@@ -226,14 +223,14 @@ angular.module('springBootAdmin')
   		}
   		
 		$scope.setLogLevel = function(name, level) {
-			ApplicationLogging.setLoglevel(application, name, level).then(function(response){
+			InstanceLogging.setLoglevel(instance, name, level).then(function(response){
 				$scope.reload(name);
 			}).catch(function(response){
 				$scope.error = response.error;
 				console.log(response.stacktrace)
 				$scope.reload(name);
 			})
-  		} 
+  		};
 		
   		$scope.reload = function(prefix) {
   			for (var i in $scope.loggers) {
@@ -242,7 +239,7 @@ angular.module('springBootAdmin')
   				}
   			}
   			$scope.refreshLevels();
-  		} 
+  		};
   		
   		$scope.refreshLevels = function() {
   			var toLoad = [];
@@ -255,7 +252,7 @@ angular.module('springBootAdmin')
 
   			if (toLoad.length == 0) return;
   			
-  			ApplicationLogging.getLoglevel(application, toLoad).then(
+  			InstanceLogging.getLoglevel(instance, toLoad).then(
   					function(responses) {
   						for (var i in responses) {
   							var name = responses[i].request.arguments[0];
@@ -271,9 +268,9 @@ angular.module('springBootAdmin')
   							}
   						}
   					});
-  		} 
+  		};
   		
-		ApplicationLogging.getAllLoggers(application).then( function (response) {
+		InstanceLogging.getAllLoggers(instance).then( function (response) {
 			$scope.loggers  = [];
 			for (var i in response.value) {
 				$scope.loggers .push({name: response.value[i], level: null});
@@ -291,21 +288,21 @@ angular.module('springBootAdmin')
 			console.log(response.stacktrace);
 		})
   	}])
-  	.controller('jmxCtrl',  ['$scope', '$modal', 'application', 'ApplicationJMX', 
-  	                         function ($scope, $modal, application, ApplicationJMX) {
+  	.controller('jmxCtrl',  ['$scope', '$modal', 'instance', 'InstanceJMX', 
+  	                         function ($scope, $modal, instance, InstanceJMX) {
 		$scope.error = null;
 		$scope.domains = [];
 		
-		ApplicationJMX.list(application).then(function(domains){
+		InstanceJMX.list(instance).then(function(domains){
 			$scope.domains = domains;
 		}).catch(function(response) {
 			$scope.error = response.error;
 			console.log(response.stacktrace);  				
-		})
+		});
   		
   		$scope.readAllAttr = function(bean) {
   			bean.error = null;
-  			ApplicationJMX.readAllAttr(application, bean).then(
+  			InstanceJMX.readAllAttr(instance, bean).then(
   					function(response) {
 		  				for (var name in response.value) {
 		  					bean.attributes[name].error = null;
@@ -316,21 +313,21 @@ angular.module('springBootAdmin')
 		  				bean.error = response.error;
 		  				console.log(response.stacktrace);
 		  			});
-  		}
+  		};
   		
   		$scope.writeAttr = function(bean, name, attr) {
   			attr.error = null;
-  			ApplicationJMX.writeAttr(application, bean, name, attr.value).catch(
+  			InstanceJMX.writeAttr(instance, bean, name, attr.value).catch(
   					function(response) {
   						attr.error = response.error;
   						console.log(response.stacktrace);
   					});
-  		}
+  		};
   		
   		$scope.invoke = function() {
   			$scope.invocation.state = 'executing';
   			
-  			ApplicationJMX.invoke(application, $scope.invocation.bean, $scope.invocation.opname, $scope.invocation.args).then(
+  			InstanceJMX.invoke(instance, $scope.invocation.bean, $scope.invocation.opname, $scope.invocation.args).then(
   					function(response) {
   						$scope.invocation.state = 'success';
   						$scope.invocation.result = response.value;
@@ -346,7 +343,7 @@ angular.module('springBootAdmin')
   				}).result.then(function() {
   					$scope.invocation = null;  		
 				});
-  		}
+  		};
   		
   		$scope.prepareInvoke = function(bean, name, op) {
   			$scope.invocation = { bean: bean, opname: name, opdesc: op, args: [], state: 'prepare' };
@@ -385,10 +382,10 @@ angular.module('springBootAdmin')
   			}
   		}
   	}])
-  	.controller('threadsCtrl',  ['$scope', 'application', 'ApplicationThreads',
-  	                                function ($scope, application, ApplicationThreads) {
+  	.controller('threadsCtrl',  ['$scope', 'instance', 'InstanceThreads',
+  	                                function ($scope, instance, InstanceThreads) {
   		$scope.dumpThreads = function() {
-  			ApplicationThreads.getDump(application).success(function(dump) {
+  			InstanceThreads.getDump(instance).success(function(dump) {
 	  			$scope.dump = dump;
 	  			
 	  			var threadStats = { NEW: 0, RUNNABLE: 0, BLOCKED: 0, WAITING: 0, TIMED_WAITING: 0, TERMINATED: 0};

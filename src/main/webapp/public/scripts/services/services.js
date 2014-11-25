@@ -7,7 +7,7 @@
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by instancelicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -23,82 +23,81 @@ angular.module('springBootAdmin.services', ['ngResource'])
   			});
   		}
   	])
-  	.factory('Application', ['$resource', function($resource) {
+  	.factory('Instance', ['$resource', function($resource) {
   		return $resource(
-  			'api/application/:id', {}, {
-  				query: { method:'GET'},
-  				remove: {method:'DELETE'}
+  			'api/instance/:id', {}, {
+  				query: { method:'GET'}
   			});
   		}
   	])
-  	.service('ApplicationOverview', ['$http', function($http) {
-  		this.getInfo = function(app) {
-  			return $http.get(app.url + '/info/').success(function(response) {
-  				app.version = response.version;
+  	.service('InstanceOverview', ['$http', function($http) {
+  		this.getInfo = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/info/').success(function(response) {
+  				instance.version = response.version;
   				delete response.version;
-  				app.info = response;
+  				instance.info = response;
   			}).error(function() {
-  				app.version = '---';
+  				instance.version = '---';
   			});
-  		}
-  		this.getHealth = function(app) {
-  			return $http.get(app.url + '/health/').success(function (response) {
-  				app.status = response.status;
+  		};
+  		this.getHealth = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/health/').success(function (response) {
+  				instance.status = response.status;
   			}).error(function (response, httpStatus) {
   				if (httpStatus === 503) {
-  					app.status = response.status;
+  					instance.status = response.status;
   				} else if (httpStatus === 404) {
-  					app.status = 'OFFLINE';
+  					instance.status = 'OFFLINE';
   				} else {
-  					app.status = 'UNKNOWN'; 
+  					instance.status = 'UNKNOWN'; 
   				}
   			});
-  		}
-  		this.getLogfile = function(app) {
-  			return $http.head(app.url + '/logfile/').success(function(response) {
-  				app.providesLogfile = true;
+  		};
+  		this.getLogfile = function(instance) {
+  			return $http.head('api/instance/'+ instance.id + '/logfile/').success(function(response) {
+  				instance.providesLogfile = true;
   			}).error(function() {
-  				app.providesLogfile = false;
+  				instance.providesLogfile = false;
   			});
   		}
   	}])
-  	.service('ApplicationDetails', ['$http', function($http) {
-  		this.getInfo = function(app) {
-  			return $http.get(app.url + '/info/');
-  		}
-  		this.getMetrics = function(app) {
-  			return $http.get(app.url + '/metrics/');
-  		}
-  		this.getEnv = function(app) {
-  			return $http.get(app.url + '/env/');
-  		}
-  		this.getHealth = function(app) {
-  			return $http.get(app.url + '/health/');
+  	.service('InstanceDetails', ['$http', function($http) {
+  		this.getInfo = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/info/');
+  		};
+  		this.getMetrics = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/metrics/');
+  		};
+  		this.getEnv = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/env/');
+  		};
+  		this.getHealth = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/health/');
   		}
 
   	}])
-  	.service('ApplicationLogging', ['$http' , 'Jolokia', function($http, jolokia) {
+  	.service('InstanceLogging', ['$http' , 'Jolokia', function($http, jolokia) {
   		var LOGBACK_MBEAN = 'ch.qos.logback.classic:Name=default,Type=ch.qos.logback.classic.jmx.JMXConfigurator';
   		
-  		this.getLoglevel = function(app, loggers) {
+  		this.getLoglevel = function(instance, loggers) {
   			var requests = [];
   			for (var j in loggers) {
   				requests.push({ type: 'exec', mbean: LOGBACK_MBEAN, operation: 'getLoggerEffectiveLevel', arguments: [ loggers[j].name ] })
   			}
-  			return jolokia.bulkRequest(app.url + '/jolokia/', requests);
-  		}
+  			return jolokia.bulkRequest('api/instance/'+ instance.id + '/jolokia/', requests);
+  		};
   		
-  		this.setLoglevel = function(app, logger, level) {
-  			return jolokia.exec(app.url + '/jolokia/', LOGBACK_MBEAN, 'setLoggerLevel' , [ logger, level] );
-  		}
+  		this.setLoglevel = function(instance, logger, level) {
+  			return jolokia.exec('api/instance/'+ instance.id + '/jolokia/', LOGBACK_MBEAN, 'setLoggerLevel' , [ logger, level] );
+  		};
   		
-  		this.getAllLoggers = function(app) {
-  			return jolokia.readAttr(app.url + '/jolokia/', LOGBACK_MBEAN, 'LoggerList'); 
+  		this.getAllLoggers = function(instance) {
+  			return jolokia.readAttr('api/instance/'+ instance.id + '/jolokia/', LOGBACK_MBEAN, 'LoggerList'); 
   		}
   	}])
-  	.service('ApplicationJMX', ['$rootScope', 'Abbreviator', 'Jolokia', function($rootScope, Abbreviator, jolokia) {
-  		this.list = function(app) {
-  			return jolokia.list(app.url + '/jolokia/').then(function(response) {
+  	.service('InstanceJMX', ['$rootScope', 'Abbreviator', 'Jolokia', function($rootScope, Abbreviator, jolokia) {
+  		this.list = function(instance) {
+  			return jolokia.list('api/instance/'+ instance.id + '/jolokia/').then(function(response) {
   					var domains = [];
   					for (var rDomainName in response.value) {
   						var rDomain = response.value[rDomainName];
@@ -153,18 +152,18 @@ angular.module('springBootAdmin.services', ['ngResource'])
   				}, function(response) {
   					return response;
   				});
-  		}
+  		};
   		
-  		this.readAllAttr = function(app, bean) { 			
-  			return jolokia.read(app.url + '/jolokia/', bean.id)
-  		}
+  		this.readAllAttr = function(instance, bean) { 			
+  			return jolokia.read('api/instance/'+ instance.id + '/jolokia/', bean.id)
+  		};
   		
-  		this.writeAttr = function(app, bean, attr, val) {
-  			return jolokia.writeAttr(app.url + '/jolokia/', bean.id, attr, val);
-  		}
+  		this.writeAttr = function(instance, bean, attr, val) {
+  			return jolokia.writeAttr('api/instance/'+ instance.id + '/jolokia/', bean.id, attr, val);
+  		};
   		
-  		this.invoke = function(app, bean, opname, args) {
-  			return jolokia.exec(app.url + '/jolokia/', bean.id, opname, args);
+  		this.invoke = function(instance, bean, opname, args) {
+  			return jolokia.exec('api/instance/'+ instance.id + '/jolokia/', bean.id, opname, args);
 		}
   		
   	}])
@@ -272,7 +271,7 @@ angular.module('springBootAdmin.services', ['ngResource'])
   					 });
   			
   			return deferred.promise;
-  		}
+  		};
   		
   		
   		this.request = function(url, request) {
@@ -291,23 +290,23 @@ angular.module('springBootAdmin.services', ['ngResource'])
   					 });
   			
   			return deferred.promise;
-  		}
+  		};
   		
   		this.exec = function(url, mbean, op, args) {
   			return outer.request(url, { type: 'exec', mbean: mbean, operation: op, arguments: args });
-  		}
+  		};
   		
   		this.read = function(url, mbean) {
   			return outer.request(url, { type: 'read', mbean: mbean });
-  		}
+  		};
   		
   		this.readAttr = function(url, mbean, attr) {
   			return outer.request(url, { type: 'read', mbean: mbean, attribute: attr });
-  		}
+  		};
   		
   		this.writeAttr = function(url, mbean, attr, val) {
   			return outer.request(url, { type: 'write', mbean: mbean, attribute: attr, value: val });
-  		}
+  		};
   		
   		this.list = function(url) {
   			return outer.request(url, { type: 'list' });
@@ -326,8 +325,8 @@ angular.module('springBootAdmin.services', ['ngResource'])
 				}
 			}
   	}])
-  	.service('ApplicationThreads', ['$http', function($http) {
-  		this.getDump = function(app) {
-  			return $http.get(app.url + '/dump/');
+  	.service('InstanceThreads', ['$http', function($http) {
+  		this.getDump = function(instance) {
+  			return $http.get('api/instance/'+ instance.id + '/dump/');
   		}
   	}]);

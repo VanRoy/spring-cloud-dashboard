@@ -1,8 +1,9 @@
 package net.vanroy.cloud.dashboard.repository;
 
-import net.vanroy.cloud.dashboard.model.Application;
-
 import java.util.Collection;
+
+import net.vanroy.cloud.dashboard.model.Application;
+import net.vanroy.cloud.dashboard.model.Instance;
 
 /**
  * Application repository interface
@@ -15,14 +16,21 @@ public interface ApplicationRepository {
     Collection<Application> findAll();
 
     /**
-     * @param id the applications id
-     * @return the Application with the specified id;
-     */
-    Application find(String id);
-
-    /**
      * @param name the applications name
      * @return all Applications with the specified name;
      */
     Collection<Application> findByName(String name);
+
+    /**
+     * @param id the instance by id
+     * @return the Instance with the specified id;
+     */
+    Instance findInstance(String id);
+
+    /**
+     * Return management url to service
+     * @param id Id of instance
+     * @return Management URL
+     */
+    String getInstanceManagementUrl(String id);
 }

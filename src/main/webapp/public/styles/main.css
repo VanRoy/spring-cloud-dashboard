@@ -169,7 +169,8 @@ span.status-OUT_OF_SERVICE {
 	font-weight: bold;
 }
  
-span.status-UNKNOWN {
+span.status-UNKNOWN,
+span.status-STARTING {
 	font-weight: bold;
 	color: #FF8800;
 }

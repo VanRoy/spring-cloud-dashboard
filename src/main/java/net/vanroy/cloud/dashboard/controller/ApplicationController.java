@@ -15,16 +15,30 @@
  */
 package net.vanroy.cloud.dashboard.controller;
 
-import net.vanroy.cloud.dashboard.model.Application;
-import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import java.io.IOException;
+import java.util.Collection;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
+import net.vanroy.cloud.dashboard.model.Application;
+import net.vanroy.cloud.dashboard.model.Instance;
+import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
 
 /**
  * REST controller for retrieve applications information.
@@ -37,22 +51,62 @@ public class ApplicationController {
 	@Autowired
 	private ApplicationRepository repository;
 
+    @Autowired
+    private HttpClient httpClient;
+
 	/**
 	 * Get a single application.
 	 * 
 	 * @param id The application identifier.
 	 * @return The application.
 	 */
-	@RequestMapping(value = "/api/application/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Application> get(@PathVariable String id) {
+	@RequestMapping(value = "/api/instance/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Instance> instance(@PathVariable String id) {
 		LOGGER.debug("Deliver application with ID '{}'", id);
-		Application application = repository.find(id);
-		if (application != null) {
-			return new ResponseEntity<Application>(application, HttpStatus.OK);
+		Instance instance = repository.findInstance(id);
+		if (instance != null) {
+			return new ResponseEntity<Instance>(instance, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<Application>(application, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Instance>(HttpStatus.NOT_FOUND);
 		}
 	}
+
+
+    @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.GET)
+   	public ResponseEntity<String> proxy(@PathVariable String id, @PathVariable String method) {
+
+        String managementUrl = repository.getInstanceManagementUrl(id);
+        if(managementUrl == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            HttpResponse response = httpClient.execute(new HttpGet(managementUrl+"/"+method));
+            return ResponseEntity.status(response.getStatusLine().getStatusCode()).body(EntityUtils.toString(response.getEntity()));
+        } catch (IOException e) {
+            LOGGER.warn("Cannot proxy metrics to instance", e);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+   	}
+
+    @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.POST)
+   	public ResponseEntity<String> proxyPost(@PathVariable String id, @PathVariable String method, @RequestBody String body) {
+
+        String managementUrl = repository.getInstanceManagementUrl(id);
+        if(managementUrl == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            HttpPost post = new HttpPost(managementUrl+"/"+method);
+            post.setEntity(new StringEntity(body));
+            HttpResponse response = httpClient.execute(post);
+            return ResponseEntity.status(response.getStatusLine().getStatusCode()).body(EntityUtils.toString(response.getEntity()));
+        } catch (IOException e) {
+            LOGGER.warn("Cannot proxy metrics to instance", e);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+   	}
 
 	/**
 	 * List all applications with name

@@ -43,8 +43,8 @@ angular.module('springBootAdmin', [
   				controller: 'appsCtrl',
   				templateUrl: 'views/apps.html',
   				resolve: {
-  			      application: ['$stateParams', 'Application' , function($stateParams, Application){
-  			          return Application.query({id: $stateParams.id}).$promise;
+  			      instance: ['$stateParams', 'Instance' , function($stateParams, Instance){
+  			          return Instance.query({id: $stateParams.id}).$promise;
   			      }]
   			   }
   			})

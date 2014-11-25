@@ -15,8 +15,8 @@
  */
 package net.vanroy.cloud.dashboard.config;
 
-import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
-import net.vanroy.cloud.dashboard.repository.EurekaRepository;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
@@ -24,6 +24,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import net.vanroy.cloud.dashboard.repository.EurekaRepository;
 
 /**
  * Spring Cloud Dashboard WebApp configuration
@@ -33,10 +36,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan("net.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
-	@Bean
-	@ConditionalOnClass(EurekaDiscoveryClient.class)
-	@ConditionalOnMissingBean(ApplicationRepository.class)
-	public EurekaRepository eurekaRepository() {
-		return new EurekaRepository();
-	}
+    @Bean
+    @ConditionalOnClass(EurekaDiscoveryClient.class)
+    @ConditionalOnMissingBean(ApplicationRepository.class)
+    public EurekaRepository eurekaRepository() {
+        return new EurekaRepository();
+    }
+
+    @Bean
+    public HttpClient HttpClient() {
+        return HttpClients.custom().setMaxConnTotal(20).build();
+    }
 }
