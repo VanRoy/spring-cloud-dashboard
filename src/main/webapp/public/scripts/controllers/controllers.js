@@ -36,15 +36,33 @@ angular.module('springBootAdmin')
   							}
   						}
   						*/
+                        app.instanceUp = app.instanceCount = 0;
 
                         for ( var j = 0; app.instances != null && j < app.instances.length; j++ ) {
                             (function(instance) {
+
+                                //Initialize app status
+                                app.instanceCount++;
+                                if(instance.status == 'UP') {
+                                    app.instanceUp++;
+                                }
+
                                 instance.refreshing = true;
                                 $q.all(InstanceOverview.getInfo(instance), InstanceOverview.getLogfile(instance)).finally(function () {
                                     instance.refreshing = false;
                                 });
                             })(app.instances[j]);
                         }
+
+                        var appState = app.instanceUp / app.instanceCount;
+                        if(appState > 0.8) {
+                            app.badge = 'success';
+                        } else if (app.instanceUp == 0) {
+                            app.badge = 'important';
+                        } else {
+                            app.badge = 'warning';
+                        }
+
   					})(applications[i]);
 	  			}	
 	  			$scope.applications = applications;
