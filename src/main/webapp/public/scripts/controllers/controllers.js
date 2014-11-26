@@ -18,53 +18,69 @@
 angular.module('springBootAdmin')
        .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', 'Applications', 'InstanceOverview', 'Instance',
                                     function ($scope, $location, $interval, $q, Applications, InstanceOverview, Instance) {
-  		
+
+    	   $scope.getApp = function(name) {
+               for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
+                   if (name === $scope.applications[j].name) {
+                       return $scope.applications[j];
+                   }
+               }
+           };
+
+           $scope.getInstance = function(app, instanceId) {
+               for ( var j = 0; app.instances != null && j < app.instances.length; j++ ) {
+                   if(instanceId === app.instances[j].id) {
+                       return app.instances[j];
+                   }
+               }
+           };
+
+           $scope.updateApStatus = function(app) {
+
+               var existApp = $scope.getApp(app);
+               if(existApp) {
+                   app = existApp;
+               }
+
+               var instanceUp = 0, instanceCount = 0;
+
+               app.instances.forEach(function(instance) {
+                   instanceCount++;
+                   if(instance.health == 'UP') {
+                      instanceUp++;
+                   }
+               });
+
+               var appState = instanceUp / instanceCount;
+               if(appState > 0.8) {
+                  app.badge = 'success';
+               } else if (app.instanceUp == 0) {
+                  app.badge = 'important';
+               } else {
+                  app.badge = 'warning';
+               }
+
+               app.instanceUp = instanceUp;
+               app.instanceCount = instanceCount;
+           };
+
     	   $scope.loadData = function() {
   			Applications.query(function(applications) {
-  				for (var i = 0; i< applications.length; i++) {
-  					(function(app) {
 
-  						/*
-  						//find application in known applications and copy state --> less flickering
-  						for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
-  							if (app.id === $scope.applications[j].id ) {
-  								app.info = $scope.applications[j].info;
-  								app.version= $scope.applications[j].version;
-  								app.status = $scope.applications[j].status;
-  								app.providesLogfile = $scope.applications[j].providesLogfile;
-  								break;
-  							}
-  						}
-  						*/
-                        app.instanceUp = app.instanceCount = 0;
+                applications.forEach(function(app) {
 
-                        for ( var j = 0; app.instances != null && j < app.instances.length; j++ ) {
-                            (function(instance) {
+                    app.instances.forEach(function(instance) {
 
-                                //Initialize app status
-                                app.instanceCount++;
-                                if(instance.status == 'UP') {
-                                    app.instanceUp++;
-                                }
+                        instance.refreshing = true;
 
-                                instance.refreshing = true;
-                                $q.all(InstanceOverview.getInfo(instance), InstanceOverview.getLogfile(instance)).finally(function () {
-                                    instance.refreshing = false;
-                                });
-                            })(app.instances[j]);
-                        }
+                        var healthPromise = InstanceOverview.getHealth(instance);
+                        healthPromise.finally(function(){$scope.updateApStatus(app)});
 
-                        var appState = app.instanceUp / app.instanceCount;
-                        if(appState > 0.8) {
-                            app.badge = 'success';
-                        } else if (app.instanceUp == 0) {
-                            app.badge = 'important';
-                        } else {
-                            app.badge = 'warning';
-                        }
+                        $q.all(InstanceOverview.getInfo(instance), healthPromise).finally(function () { instance.refreshing = false; });
+                    });
 
-  					})(applications[i]);
-	  			}	
+                });
+
 	  			$scope.applications = applications;
 	  		});
   		};

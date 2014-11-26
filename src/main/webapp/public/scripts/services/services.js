@@ -42,24 +42,17 @@ angular.module('springBootAdmin.services', ['ngResource'])
   		};
   		this.getHealth = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/health/').success(function (response) {
-  				instance.status = response.status;
+  				instance.health = response.status;
   			}).error(function (response, httpStatus) {
   				if (httpStatus === 503) {
-  					instance.status = response.status;
+  					instance.health = response.status;
   				} else if (httpStatus === 404) {
-  					instance.status = 'OFFLINE';
+  					instance.health = 'OFFLINE';
   				} else {
-  					instance.status = 'UNKNOWN'; 
+  					instance.health = 'UNKNOWN';
   				}
   			});
   		};
-  		this.getLogfile = function(instance) {
-  			return $http.head('api/instance/'+ instance.id + '/logfile/').success(function(response) {
-  				instance.providesLogfile = true;
-  			}).error(function() {
-  				instance.providesLogfile = false;
-  			});
-  		}
   	}])
   	.service('InstanceDetails', ['$http', function($http) {
   		this.getInfo = function(instance) {

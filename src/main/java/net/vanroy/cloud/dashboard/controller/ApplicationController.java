@@ -83,8 +83,8 @@ public class ApplicationController {
         try {
             HttpResponse response = httpClient.execute(new HttpGet(managementUrl+"/"+method));
             return ResponseEntity.status(response.getStatusLine().getStatusCode()).body(EntityUtils.toString(response.getEntity()));
-        } catch (IOException e) {
-            LOGGER.warn("Cannot proxy metrics to instance", e);
+        } catch (Exception e) {
+            LOGGER.debug("Cannot proxy metrics to instance", e);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
    	}
@@ -103,7 +103,7 @@ public class ApplicationController {
             HttpResponse response = httpClient.execute(post);
             return ResponseEntity.status(response.getStatusLine().getStatusCode()).body(EntityUtils.toString(response.getEntity()));
         } catch (IOException e) {
-            LOGGER.warn("Cannot proxy metrics to instance", e);
+            LOGGER.debug("Cannot proxy metrics to instance", e);
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
    	}

@@ -35,7 +35,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 
 import net.vanroy.cloud.dashboard.config.EnableCloudDashboard;
 import net.vanroy.cloud.dashboard.model.Application;
@@ -89,14 +88,14 @@ public class DashboardApplicationTest {
                 public Collection<Application> findAll() {
                     return ImmutableList.of(
                         new Application("MESSAGE",
-                            ImmutableSet.of(
+                                ImmutableList.of(
                                 new Instance("http://localhost:8001", "INSTANCE 1", "ID1", "UP"),
                                 new Instance("http://localhost:8002", "INSTANCE 2", "ID2", "DOWN"),
                                 new Instance("http://localhost:8003", "INSTANCE 3", "ID3", "STARTING")
                             )
                         ),
                         new Application("FRONT",
-                            ImmutableSet.of(
+                            ImmutableList.of(
                                 new Instance("http://localhost:8001", "INSTANCE 1", "ID1","OUT_OF_SERVICE"),
                                 new Instance("http://localhost:8002", "INSTANCE 2", "ID2","DOWN"),
                                 new Instance("http://localhost:8003", "INSTANCE 3", "ID3","UNKNOWN")
@@ -112,12 +111,12 @@ public class DashboardApplicationTest {
 
                 @Override
                 public Instance findInstance(String id) {
-                    return new Instance("http://localhost:8001", "INSTANCE 1", "ID1", "UP");
+                    return new Instance("http://localhost:8002", "INSTANCE 1", "ID1", "UP");
                 }
 
                 @Override
                 public String getInstanceManagementUrl(String id) {
-                    return "http://localhost:8001/manage";
+                    return "http://localhost:8002/manage";
                 }
             };
         }

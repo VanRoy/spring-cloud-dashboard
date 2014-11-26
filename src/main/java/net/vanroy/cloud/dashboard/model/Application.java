@@ -15,7 +15,7 @@
  */
 package net.vanroy.cloud.dashboard.model;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * The domain model for all application at the spring cloud dashboard application.
@@ -23,9 +23,9 @@ import java.util.Set;
 public class Application {
 
 	private final String name;
-	private final Set<Instance> instances;
+	private final List<Instance> instances;
 
-	public Application(String name, Set<Instance> instances) {
+	public Application(String name, List<Instance> instances) {
 		this.name = name;
 		this.instances = instances;
 	}
@@ -34,7 +34,7 @@ public class Application {
 		return name;
 	}
 
-	public Set<Instance> getInstances() {
+	public List<Instance> getInstances() {
 		return instances;
 	}
 }

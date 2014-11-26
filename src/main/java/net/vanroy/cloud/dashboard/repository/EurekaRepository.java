@@ -58,7 +58,7 @@ public class EurekaRepository implements ApplicationRepository {
         @Override
         public Application apply(com.netflix.discovery.shared.Application app) {
             if(app == null) { return null; }
-            return new Application(app.getName(), app.getInstances().stream().map(TO_INSTANCE).collect(Collectors.toSet()));
+            return new Application(app.getName(), app.getInstances().stream().map(TO_INSTANCE).sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).collect(Collectors.toList()));
         }
     };
 

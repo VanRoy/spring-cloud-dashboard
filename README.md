@@ -12,7 +12,7 @@ Add the following dependency to your pom.xml.
 </dependency>
 ```
 
-Create the Spring Cloud Dashbord with only one single Annotation.
+Create the Spring Cloud Dashboard with only one single Annotation.
 ```
 @Configuration
 @EnableAutoConfiguration
