@@ -1,0 +1,43 @@
+<div class="container" style="margin-bottom: 20px;">
+    <div class="row">
+        <div class="span12">
+            <h2 style="display: inline-block;">{{ instance.name }}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <tabset>
+            <tab heading="Last registered leases">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Instance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="instance in registered">
+                            <td>{{ instance.date | date : 'short' }}</td>
+                            <td>{{ instance.id }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </tab>
+            <tab heading="Last cancelled leases">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Instance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="instance in cancelled">
+                            <td>{{ instance.date | date : 'short' }}</td>
+                            <td>{{ instance.id }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </tab>
+        </tabset>
+    </div>
+</div>

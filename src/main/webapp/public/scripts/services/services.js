@@ -15,7 +15,7 @@
  */
 'use strict';
 
-angular.module('springBootAdmin.services', ['ngResource'])
+angular.module('springCloudDashboard.services', ['ngResource'])
   	.factory('Applications', ['$resource', function($resource) {
   		return $resource(
   			'api/applications', {}, {
@@ -30,6 +30,13 @@ angular.module('springBootAdmin.services', ['ngResource'])
   			});
   		}
   	])
+    .factory('InstancesHistory', ['$resource', function($resource) {
+   		return $resource(
+   			'api/instances/history', {}, {
+   				query: { method:'GET'}
+   			});
+   		}
+   	])
   	.service('InstanceOverview', ['$http', function($http) {
   		this.getInfo = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/info/').success(function(response) {

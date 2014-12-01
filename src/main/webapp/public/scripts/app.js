@@ -15,18 +15,18 @@
  */
 'use strict';
 
-angular.module('springBootAdmin', [
+angular.module('springCloudDashboard', [
   'ngResource',
   'ngRoute',
   'ui.router',
   'ui.bootstrap',
-  'springBootAdmin.services',
+  'springCloudDashboard.services',
   'nvd3ChartDirectives'
 ])
   	.config(function ($stateProvider, $urlRouterProvider) {
   		$urlRouterProvider
   			.when('/', '/overview')
-  			.otherwise('/')
+  			.otherwise('/');
   		$stateProvider
 	  		.state('overview', {
 	  			url: '/overview',
@@ -48,6 +48,11 @@ angular.module('springBootAdmin', [
   			      }]
   			   }
   			})
+            .state('history', {
+                url: '/history',
+                templateUrl: 'views/apps/history.html',
+                controller: 'appsHistoryCtrl'
+            })
   			.state('apps.details', {
   				url: '/details',
   				templateUrl: 'views/apps/details.html',

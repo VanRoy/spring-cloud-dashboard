@@ -16,6 +16,7 @@
 package net.vanroy.cloud.dashboard;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import com.google.common.collect.ImmutableList;
 import net.vanroy.cloud.dashboard.config.EnableCloudDashboard;
 import net.vanroy.cloud.dashboard.model.Application;
 import net.vanroy.cloud.dashboard.model.Instance;
+import net.vanroy.cloud.dashboard.model.InstanceHistory;
 import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
 
 import static org.junit.Assert.assertEquals;
@@ -96,9 +98,9 @@ public class DashboardApplicationTest {
                         ),
                         new Application("FRONT",
                             ImmutableList.of(
-                                new Instance("http://localhost:8001", "INSTANCE 1", "ID1","OUT_OF_SERVICE"),
-                                new Instance("http://localhost:8002", "INSTANCE 2", "ID2","DOWN"),
-                                new Instance("http://localhost:8003", "INSTANCE 3", "ID3","UNKNOWN")
+                                new Instance("http://localhost:8001", "FRONT INSTANCE 1", "FRONT ID1","OUT_OF_SERVICE"),
+                                new Instance("http://localhost:8002", "FRONT INSTANCE 2", "FRONT ID2","DOWN"),
+                                new Instance("http://localhost:8003", "FRONT INSTANCE 3", "FRONT ID3","UNKNOWN")
                             )
                         )
                     );
@@ -117,6 +119,24 @@ public class DashboardApplicationTest {
                 @Override
                 public String getInstanceManagementUrl(String id) {
                     return "http://localhost:8002/manage";
+                }
+
+                @Override
+                public List<InstanceHistory> getRegisteredInstanceHistory() {
+                    return ImmutableList.of(
+                        new InstanceHistory("INSTANCE 1", new Date()),
+                        new InstanceHistory("INSTANCE 2", new Date()),
+                        new InstanceHistory("INSTANCE 3", new Date())
+                    );
+                }
+
+                @Override
+                public List<InstanceHistory> getCanceledInstanceHistory() {
+                    return ImmutableList.of(
+                        new InstanceHistory("CANCELLED INSTANCE 1", new Date()),
+                        new InstanceHistory("CANCELLED INSTANCE 2", new Date()),
+                        new InstanceHistory("CANCELLED INSTANCE 3", new Date())
+                    );
                 }
             };
         }

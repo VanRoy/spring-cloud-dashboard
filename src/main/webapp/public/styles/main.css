@@ -1,8 +1,13 @@
 /** main classes **/
+html {
+  position: relative;
+  min-height: 100%;
+}
 
 body {
   background-color: #f1f1f1;
   font-family: "Varela Round",sans-serif;
+  margin-bottom: 50px;
 }
 
 .container-fluid {
@@ -96,6 +101,9 @@ pre {
   padding: 3px 16px 3px 18px;
   cursor: pointer;
 }
+.nav, .pagination, .carousel, .panel-title a {
+    cursor: pointer;
+}
 .header--navbar .navbar-inner .navbar-link.nav-search:hover .navbar-search--icon {
   text-shadow: 0 0 10px #6db33f;
 }
@@ -127,9 +135,13 @@ a:hover.spring-logo span {
 
 /** FOOTER **/
 .footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   background-color: #34302d;
   color: #eeeeee;
-  padding: 30px 0;
+  height: 20px;
+  padding: 15px 0;
 }
 .footer a {
   color: #6db33f;

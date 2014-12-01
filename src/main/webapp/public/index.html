@@ -12,7 +12,7 @@
 <link rel="stylesheet" type="text/css" href="webjars/nvd3/${nvd3.version}/nv.d3.min.css" />
 <link rel="stylesheet" type="text/css" href="styles/main.css" />
 </head>
-<body ng-app="springBootAdmin">
+<body ng-app="springCloudDashboard">
 	<script type="text/javascript">
 		// Work around Google font rendering issues in webkit browsers on Windows 7
 		if (navigator.userAgent.indexOf("NT 6.1") != -1) {
@@ -31,6 +31,7 @@
 					</div>
 					<ul class="nav pull-right">
 						<li class="navbar-link" ng-class="{active: $state.includes('apps') ||  $state.includes('overview')  }"><a ui-sref="overview">Applications</a></li>
+						<li class="navbar-link" ng-class="{active: $state.includes('history')}"><a ui-sref="history">History</a></li>
 						<li class="navbar-link" ng-class="{active: $state.includes('about')}"><a ui-sref="about">About</a></li>
 					</ul>
 				</div>

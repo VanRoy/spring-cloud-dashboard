@@ -17,6 +17,8 @@ package net.vanroy.cloud.dashboard.controller;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -36,8 +38,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.ImmutableMap;
+
 import net.vanroy.cloud.dashboard.model.Application;
 import net.vanroy.cloud.dashboard.model.Instance;
+import net.vanroy.cloud.dashboard.model.InstanceHistory;
 import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
 
 /**
@@ -53,6 +58,21 @@ public class ApplicationController {
 
     @Autowired
     private HttpClient httpClient;
+
+    /**
+   	 * List all applications with name
+   	 *
+   	 * @return List.
+   	 */
+   	@RequestMapping(value = "/api/applications", method = RequestMethod.GET)
+   	public Collection<Application> applications(@RequestParam(value = "name", required = false) String name) {
+   		LOGGER.debug("Deliver applications with name= {}", name);
+   		if (name == null || name.isEmpty()) {
+   			return repository.findAll();
+   		} else {
+   			return repository.findByName(name);
+   		}
+   	}
 
 	/**
 	 * Get a single application.
@@ -71,7 +91,12 @@ public class ApplicationController {
 		}
 	}
 
-
+    /**
+     * Proxy call instance with specific management method
+     * @param id id of instance
+     * @param method Management method name
+     * @return Return directly from instance
+     */
     @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.GET)
    	public ResponseEntity<String> proxy(@PathVariable String id, @PathVariable String method) {
 
@@ -89,6 +114,12 @@ public class ApplicationController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
    	}
 
+    /**
+     * Proxy call instance with specific management method  (with Http POST method)
+     * @param id id of instance
+     * @param method Management method name
+     * @return Return directly from instance
+     */
     @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.POST)
    	public ResponseEntity<String> proxyPost(@PathVariable String id, @PathVariable String method, @RequestBody String body) {
 
@@ -108,18 +139,15 @@ public class ApplicationController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
    	}
 
-	/**
-	 * List all applications with name
-	 * 
-	 * @return List.
-	 */
-	@RequestMapping(value = "/api/applications", method = RequestMethod.GET)
-	public Collection<Application> applications(@RequestParam(value = "name", required = false) String name) {
-		LOGGER.debug("Deliver applications with name= {}", name);
-		if (name == null || name.isEmpty()) {
-			return repository.findAll();
-		} else {
-			return repository.findByName(name);
-		}
-	}
+    /**
+     * Return instance history registration/cancellation
+     * @return List of registered/cancelled instances
+     */
+    @RequestMapping(value = "/api/instances/history", method = RequestMethod.GET)
+    public Map<String, List<InstanceHistory>> instancesHistory() {
+        return ImmutableMap.of(
+            "lastRegistered", repository.getRegisteredInstanceHistory(),
+            "lastCancelled", repository.getCanceledInstanceHistory()
+        );
+    }
 }

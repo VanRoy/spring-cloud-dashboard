@@ -15,7 +15,7 @@
  */
 'use strict';
 
-angular.module('springBootAdmin')
+angular.module('springCloudDashboard')
 	.filter('timeInterval', function() {
 		function padZero(i,n) {
 			var s = i + "";
