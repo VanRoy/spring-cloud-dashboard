@@ -439,4 +439,8 @@ angular.module('springCloudDashboard')
 	  			$scope.error = error;
 	  		});
   		}
-  	}]);
+  	}])
+	.controller('circuitBreakerCtrl',  ['$scope',
+		function ($scope) {
+
+	}]);

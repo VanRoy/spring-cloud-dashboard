@@ -53,6 +53,11 @@ angular.module('springCloudDashboard', [
                 templateUrl: 'views/apps/history.html',
                 controller: 'appsHistoryCtrl'
             })
+			.state('circuit-breaker', {
+				url: '/circuit-breaker',
+				templateUrl: 'views/circuit-breaker/index.html',
+				controller: 'circuitBreakerCtrl'
+			})
   			.state('apps.details', {
   				url: '/details',
   				templateUrl: 'views/apps/details.html',

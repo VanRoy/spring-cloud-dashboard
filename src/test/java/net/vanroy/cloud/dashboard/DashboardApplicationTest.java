@@ -20,11 +20,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
+import net.vanroy.cloud.dashboard.turbine.MockStreamServlet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -81,6 +84,12 @@ public class DashboardApplicationTest {
 		public static void main(String[] args) {
 			SpringApplication.run(DashboardApplicationTest.DashboardApplication.class, args);
 		}
+
+
+        @Bean
+        public ServletRegistrationBean turbineStreamServlet() {
+            return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/turbine.stream");
+        }
 
         @Bean
         public ApplicationRepository eurekaRepository() {
