@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>Spring Cloud Dashboard</title>
 <meta name="description" content="">
-<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png" />
 <link href="https://fonts.googleapis.com/css?family=Varela+Round|Montserrat:400,700" rel="stylesheet" type="text/css">
 <link rel="stylesheet" type="text/css" href="webjars/bootstrap/${bootstrap.version}/css/bootstrap.min.css" />
@@ -20,24 +20,34 @@
 		}
 	</script>
 	<div class="viewport">
-		<header class="navbar header--navbar desktop-only">
-			<div class="navbar-inner">
-				<div class="container-fluid" >
+
+		<header role="banner" id="top" class="navbar navbar-static-top bs-docs-nav">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button data-target=".bs-navbar-collapse" data-toggle="collapse" type="button" class="navbar-toggle collapsed">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
 					<div class="spring-logo--container">
 						<a class="spring-logo" href="/"><span></span></a>
 					</div>
 					<div class="spring-logo--container">
 						<a class="spring-boot-logo" href="/"><span></span></a>
 					</div>
-					<ul class="nav pull-right">
+				</div>
+				<nav role="navigation" class="collapse navbar-collapse bs-navbar-collapse">
+					<ul class="nav navbar-nav navbar-right">
 						<li class="navbar-link" ng-class="{active: $state.includes('apps') ||  $state.includes('overview')  }"><a ui-sref="overview">Applications</a></li>
 						<li class="navbar-link" ng-class="{active: $state.includes('history')}"><a ui-sref="history">History</a></li>
 						<li class="navbar-link" ng-class="{active: $state.includes('circuit-breaker')}"><a ui-sref="circuit-breaker">Circuit Breakers</a></li>
 						<li class="navbar-link" ng-class="{active: $state.includes('about')}"><a ui-sref="about">About</a></li>
 					</ul>
-				</div>
+				</nav>
 			</div>
 		</header>
+
 		<div class="container-fluid ">
 			<div class="main-body--wrapper">
 				<div ui-view></div>
@@ -54,7 +64,7 @@
 	<script src="webjars/bootstrap/${bootstrap.version}/js/bootstrap.min.js"></script>
 	<script src="webjars/angularjs/${angularjs.version}/angular-resource.min.js"></script>
 	<script src="webjars/angularjs/${angularjs.version}/angular-route.min.js"></script>
-	<script src="webjars/angular-ui-router/0.2.10/angular-ui-router.min.js"></script>
+	<script src="webjars/angular-ui-router/${angular-ui-router.version}/angular-ui-router.min.js"></script>
 	<script src="webjars/angular-ui-bootstrap/${angular-ui-bootstrap.version}/ui-bootstrap.min.js"></script>
 	<script src="webjars/angular-ui-bootstrap/${angular-ui-bootstrap.version}/ui-bootstrap-tpls.min.js"></script>	
 	<script src="webjars/d3js/${d3js.version}/d3.min.js"></script>
@@ -63,6 +73,7 @@
 	<script src="webjars/jolokia.js/${jolokia-js.version}/jolokia.js"></script>
 	<script src="scripts/app.js"></script>
 	<script src="scripts/controllers/controllers.js"></script>
+	<script src="scripts/controllers/circuit-breaker.js"></script>
 	<script src="scripts/services/services.js"></script>
 	<script src="scripts/filters/filters.js"></script>
 </body>

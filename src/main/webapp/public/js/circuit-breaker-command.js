@@ -2,10 +2,10 @@
 (function(window) {
 
 	// cache the templates we use on this page as global variables (asynchronously)
-	jQuery.get(getRelativePath("components/hystrixCommand/templates/hystrixCircuit.html"), function(data) {
+	jQuery.get(getRelativePath("views/circuit-breaker/circuit.html"), function(data) {
 		hystrixTemplateCircuit = data;
 	});
-	jQuery.get(getRelativePath("components/hystrixCommand/templates/hystrixCircuitContainer.html"), function(data) {
+	jQuery.get(getRelativePath("views/circuit-breaker/circuit-container.html"), function(data) {
 		hystrixTemplateCircuitContainer = data;
 	});
 
@@ -51,13 +51,11 @@
 		 * In other words, sorting only for adds/deletes is not sufficient as all but alphabetical sort are dynamically changing.
 		 */
 
-		/*
 		setInterval(function() {
 			// sort since we have added a new one
 			self.sortSameAsLast();
 		}, 10000);
-          */
-		
+
 		/**
 		 * END of Initialization on construction
 		 */
@@ -272,9 +270,6 @@
 			}
 			return resultAsString;
 		};
-		
-		
-		
 		
 		/* private */ function updateCircle(variablePrefix, cssTarget, rate, errorPercentage) {
 			var newXaxisForCircle = self[variablePrefix + 'CircleXaxis'](rate);
@@ -511,7 +506,6 @@
 
 	// default sort type and direction
 	this.sortedBy = 'alph_asc';
-
 
 	// a temporary home for the logger until we become more sophisticated
 	function log(message) {

@@ -2,44 +2,52 @@
 <small>Here you'll find all Spring Cloud applications that registered on the registry.</small>
 </h2>
 
+<div class="row">
+    <div class="col-md-4">
 
-<accordion close-others="true">
-		<accordion-group ng-repeat="app in applications track by app.name">
-			<accordion-heading>
-				<strong>{{app.name}}</strong>
-                &nbsp;
-                <span class="badge badge-{{app.badge}}">{{ app.instanceUp }} / {{ app.instanceCount }}</span>
-			</accordion-heading>
+        <tabset class="tabs-inverse" vertical="true" type="pills" ng-init="visible = []">
+            <tab select="selectApp($index)" ng-repeat="app in applications track by app.name" select="visible[app.name] =  true" deselect="visible[app.name] = false">
+                <tab-heading>
+                    <strong>{{app.name}}</strong>
+                    <div class="pull-right">
+                        <span class="label label-{{app.badge}}">{{ app.instanceUp }} / {{ app.instanceCount }}</span>
+                    </div>
+                </tab-heading>
+            </tab>
+        </tabset>
 
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Instance</th>
-                        <th>Version</th>
-                        <th>Info</th>
-                        <th>Status</th>
-                        <th colspan="2">Health</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="application in app.instances track by application.id">
-                        <td>{{ application.name }}<br/><span class="muted">{{ application.url }}</span></td>
-                        <td>{{ application.version }}</td>
-                        <td><span ng-repeat="(name, value) in application.info track by name">{{name}}: {{value}}<br></span></td>
-                        <td><span class="status-{{application.status}}">{{ application.status }}</span>
-                        <span ng-show="application.refreshing" class="refresh"></span></td>
-                        <td><span class="status-{{application.health}}">{{ application.health }}</span></td>
-                        <td>
-                            <div class="btn-group pull-right" ng-hide="application.status == null || application.status == 'DOWN' || application.status == 'OUT_OF_SERVICE' || application.health == 'OFFLINE'">
-                                <a ui-sref="apps.details.metrics({id: application.id})" class="btn btn-success">Details</a>
-                                <a ui-sref="apps.logging({id: application.id})" class="btn btn-success">Logging</a>
-                                <a ui-sref="apps.jmx({id: application.id})" class="btn btn-success">JMX</a>
-                                <a ui-sref="apps.threads({id: application.id})" class="btn btn-success">Threads</a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    </div>
+    <div class="col-md-8">
 
-        </accordion-group>
-</accordion>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Instance</th>
+                <th>Version</th>
+                <th>Info</th>
+                <th>Status</th>
+                <th colspan="2">Health</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="application in app.instances track by application.id">
+                <td>{{ application.name }}<br/><span class="muted">{{ application.url }}</span></td>
+                <td>{{ application.version }}</td>
+                <td><span ng-repeat="(name, value) in application.info track by name">{{name}}: {{value}}<br></span></td>
+                <td><span class="status-{{application.status}}">{{ application.status }}</span>
+                    <span ng-show="application.refreshing" class="refresh"></span></td>
+                <td><span class="status-{{application.health}}">{{ application.health }}</span></td>
+                <td>
+                    <div class="btn-group pull-right" ng-hide="application.status == null || application.status == 'DOWN' || application.status == 'OUT_OF_SERVICE' || application.health == 'OFFLINE'">
+                        <a ui-sref="apps.details.metrics({id: application.id})" class="btn btn-success">Details</a>
+                        <a ui-sref="apps.logging({id: application.id})" class="btn btn-success">Logging</a>
+                        <a ui-sref="apps.jmx({id: application.id})" class="btn btn-success">JMX</a>
+                        <a ui-sref="apps.threads({id: application.id})" class="btn btn-success">Threads</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>

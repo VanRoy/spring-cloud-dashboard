@@ -10,12 +10,8 @@ body {
   margin-bottom: 50px;
 }
 
-.container-fluid {
-  margin: 0 auto;
-}
-
 .main-body--wrapper {
-  margin-top: 50px;
+  margin-top: 20px;
   margin-bottom: 50px;
 }
 
@@ -26,16 +22,52 @@ body {
 }
 
 a {
-    color: #5fa134;
+  color: #5fa134;
+  -moz-user-select: none;
 }
 
 a:hover,
 a:active {
-    color: #5fa134;
+  color: #5fa134;
 }
 
 pre {
 	white-space: pre;
+}
+
+.btn-inverse:hover, .btn-inverse:focus, .btn-inverse:active, .btn-inverse.active, .btn-inverse.disabled, .btn-inverse[disabled] {
+  background-color: #222;
+  color: #fff;
+}
+
+.glyphicon-white {
+  color: #fff;
+}
+
+.btn-no-border-left {
+  margin-left: -1px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.btn-no-border-right {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.bottom-margin {
+  margin-bottom: 20px;
+}
+
+/** TAB LEFT **/
+.tab-content {
+  overflow: auto;
+}
+
+.tabs-left > .nav {
+  border-right: 1px solid #ddd;
+  float: left;
+  margin-right: 19px;
 }
 
 /** NVD3 **/
@@ -47,7 +79,7 @@ pre {
 .header--navbar {
   margin: 0;
 }
-.header--navbar .navbar-inner {
+.navbar {
   font-family: Montserrat,sans-serif;
   position: absolute;
   z-index: 999;
@@ -61,21 +93,21 @@ pre {
   border-radius: 0;
   padding: 0;
 }
-.header--navbar .navbar-inner .spring-logo--container {
+.navbar .spring-logo--container {
   display: inline-block;
 }
-.header--navbar .navbar-inner .spring-logo--container .spring-logo {
+.navbar .spring-logo--container .spring-logo {
   margin: 12px 0 6px;
   width: 160px;
   height: 46px;
   display: inline-block;
   text-decoration: none;
 }
-.header--navbar .navbar-inner .navbar-link.active a {
+.navbar .navbar-link.active a {
   background-color: #6db33f;
   box-shadow: none;
 }
-.header--navbar .navbar-inner .navbar-link a {
+.navbar .navbar-link a {
   color: #eeeeee;
   text-transform: uppercase;
   text-shadow: none;
@@ -88,14 +120,14 @@ pre {
   -o-transition: all 0.15s;
   -ms-transition: all 0.15s;
 }
-.header--navbar .navbar-inner .navbar-link:hover a {
+.navbar .navbar-link:hover a {
   color: #eeeeee;
   background-color: #6db33f;
 }
-.header--navbar .navbar-inner .navbar-link.nav-search {
+.navbar .navbar-link.nav-search {
   padding: 20px 0 23px;
 }
-.header--navbar .navbar-inner .navbar-link.nav-search .navbar-search--icon {
+.navbar .navbar-link.nav-search .navbar-search--icon {
   color: #eeeeee;
   font-size: 24px;
   padding: 3px 16px 3px 18px;
@@ -104,13 +136,13 @@ pre {
 .nav, .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
-.header--navbar .navbar-inner .navbar-link.nav-search:hover .navbar-search--icon {
+.navbar .navbar-link.nav-search:hover .navbar-search--icon {
   text-shadow: 0 0 10px #6db33f;
 }
-.header--navbar .navbar-inner .navbar-link.nav-search .search-input-close {
+.navbar .navbar-link.nav-search .search-input-close {
   display: none;
 }
-.header--navbar .navbar-inner .navbar-link.nav-search.js-highlight {
+.navbar .navbar-link.nav-search.js-highlight {
   background-color: #6db33f;
 }
 
@@ -133,6 +165,10 @@ a:hover.spring-logo span {
   opacity: 1;
 }
 
+.icon-bar {
+  background-color: white;
+}
+
 /** FOOTER **/
 .footer {
   position: absolute;
@@ -140,8 +176,8 @@ a:hover.spring-logo span {
   width: 100%;
   background-color: #34302d;
   color: #eeeeee;
-  height: 20px;
-  padding: 15px 0;
+  height: 50px;
+  padding: 20px 0;
 }
 .footer a {
   color: #6db33f;
@@ -164,7 +200,6 @@ a:hover.spring-boot-logo span {
 }
 
 /** Status in Application Overview-View **/
-
 span.status-UP {
 	color: #00AA00;
 	font-weight: bold;
@@ -195,17 +230,20 @@ span.refresh {
 }
 
 /** Headings and Tabs in Detail-View  **/
-.accordion-heading ,
-.accordion-heading > a,
-.accordion-heading > a:hover,
-.accordion-heading > a:focus,
-.nav-tabs > .active > a, 
-.nav-tabs > .active > a:hover, 
+.panel-heading ,
+.panel-heading > .panel-title > a,
+.panel-heading > .panel-title > a:hover,
+.panel-heading > .panel-title > a:focus,
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover,
 .nav-tabs > .active > a:focus,
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus,
 .table > thead > tr > th {
-	background-color: #34302D; 
-	border-color: #34302D; 
-	color: #f1f1f1; 
+	background-color: #34302D !important;
+	border-color: #34302D !important;
+	color: #f1f1f1 !important;
 }
 
 .nav > li > a {
@@ -216,6 +254,40 @@ span.refresh {
   margin-bottom: 0;
 }
 
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover,
+.nav-tabs > .active > a:focus,
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus,
+.table > thead > tr > th {
+  background-color: #34302D !important;
+  border-color: #34302D !important;
+  color: #f1f1f1 !important;
+}
+
+.tabs-inverse > .nav-pills > li > a {
+  background-color: #34302D !important;
+  border-color: #34302D !important;
+  color: #f1f1f1 !important;
+}
+
+.tabs-inverse > .nav-pills > li > a:hover,
+.tabs-inverse > .nav-pills > li > a:focus {
+  color: #6db33f !important;
+}
+
+.tabs-inverse > .nav-pills > li.active > a {
+  background-color: #6db33f !important;
+  border-color: #6db33f !important;
+  color: #f1f1f1 !important;
+}
+
+
+.tabs-inverse > .nav-pills > li.active > a > tab-heading > div > span.label-success {
+  background-color: #34302D !important;
+}
+
 /** highlighted rows on Detail-Environment-View **/
 .table tr.highlight > td {
   background-color: #999 !important;
@@ -224,6 +296,46 @@ span.refresh {
 
 /** Tabs-list in domain-section in JMX-View **/
 .tabs-left > ul {
-	max-width: 30%; 
-	overflow: hidden;
+  max-width: 30%;
+  overflow: hidden;
+}
+
+/** Circuit breaker **/
+.row-centered {
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.dependencies {
+  line-height: 1;
+}
+
+.last {
+  margin-right: 0px;
+}
+
+.menu_legend {
+  margin-right: 20px;
+}
+
+.success {
+  color: green;
+}
+.shortCircuited {
+  color: blue;
+}
+.timeout {
+  color: #FF9900;	 /* shade of orange */
+}
+.failure {
+  color: red;
+}
+
+.rejected {
+  color: purple;
+}
+
+.exceptionsThrown {
+  color: brown;
 }

@@ -62,27 +62,43 @@ angular.module('springCloudDashboard')
 
                app.instanceUp = instanceUp;
                app.instanceCount = instanceCount;
-           };
+           	};
 
-    	   $scope.loadData = function() {
-  			Applications.query(function(applications) {
+    	   	$scope.loadData = function() {
+
+				Applications.query(function(applications) {
 
                 applications.forEach(function(app) {
 
                     app.instances.forEach(function(instance) {
 
-                        instance.refreshing = true;
+						InstanceOverview.getHealth(instance).finally(function(){
+							$scope.updateApStatus(app);
+						});
 
-                        var healthPromise = InstanceOverview.getHealth(instance);
-                        healthPromise.finally(function(){$scope.updateApStatus(app)});
-
-                        $q.all(InstanceOverview.getInfo(instance), healthPromise).finally(function () { instance.refreshing = false; });
                     });
 
                 });
 
 	  			$scope.applications = applications;
 	  		});
+
+			$scope.selectApp = function(appIndex) {
+
+			   var app = $scope.applications[appIndex];
+
+			   app.instances.forEach(function(instance) {
+
+				   instance.refreshing = true;
+
+				   var healthPromise = InstanceOverview.getHealth(instance);
+				   healthPromise.finally(function(){$scope.updateApStatus(app)});
+
+				   $q.all(InstanceOverview.getInfo(instance), healthPromise).finally(function () { instance.refreshing = false; });
+			   });
+
+			   $scope.app = app;
+		   	}
   		};
   		$scope.loadData();
 

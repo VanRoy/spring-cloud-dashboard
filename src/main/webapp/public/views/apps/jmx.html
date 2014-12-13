@@ -1,4 +1,4 @@
-<div class="alert alert-error" ng-if="error">
+<div class="alert alert-danger" ng-if="error">
 	<b>Error:</b> {{ error }}
 </div>
 <div class="container">
@@ -8,7 +8,7 @@
 				<small class="muted">Domain</small> {{domain.name}}
 			</accordion-heading>
 
-			<tabset class="tabs-left" ng-init="visible = []">
+			<tabset class="tabs-left" vertical="true" type="pills" ng-init="visible = []">
 				<tab ng-repeat="bean in domain.beans track by bean.id" select="visible[bean.id] =  true" deselect="visible[bean.id] = false">
 					<tab-heading>
 						<small class="muted">MBean</small> {{bean.name }}
@@ -27,36 +27,38 @@
 						<form class="form-horizontal" ng-if="bean.attributes !== undefinded">
 							<legend>
 								Attributes
-								<button class="btn" type="button" ng-click="readAllAttr(bean)">read</button>
+								<button class="btn btn-default" type="button" ng-click="readAllAttr(bean)">read</button>
 							</legend>
-							<div ng-show="bean.error" class="alert alert-error">
+							<div ng-show="bean.error" class="alert alert-danger">
 	  							<b>Error:</b> {{ bean.error }}
 	  						</div>
-							<div class="control-group" ng-repeat="(name, attr) in bean.attributes track by name" ng-class="{error: attr.error}">
-								<label class="control-label" for="{{name}}"	style="word-break: break-all;">
+							<div class="form-group" ng-repeat="(name, attr) in bean.attributes track by name" ng-class="{error: attr.error}">
+								<label class="col-sm-3 control-label" for="{{name}}"	style="word-break: break-all;">
 									{{name}}<br/>
 									<small class="muted">{{attr.type}}</small>
 								</label>
-								<div class="controls">
-									<div class="input-prepend" ng-switch="attr.type.toLowerCase()">
-										<button class="btn" type="button" ng-click="writeAttr(bean, name, attr)" ng-disabled="!attr.rw">write</button>
-										<input ng-switch-when="java.lang.string" class="span5" type="text" ng-model="attr.value" ng-disabled="!attr.rw" />
-										<input ng-switch-when="long" class="span5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
-										<input ng-switch-when="int"  class="span5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
-										<input ng-switch-when="double" class="span5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
-										<select ng-switch-when="boolean" class="span5" ng-model="attr.value" ng-disabled="!attr.rw" ng-options="val for val in [true, false]" />
-										<textarea ng-switch-default style="word-break: break-all;" class="span5" ng-model="attr.jsonValue" ng-disabled="!attr.rw" />
+								<div class="col-sm-9">
+									<div class="input-group" ng-switch="attr.type.toLowerCase()">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button" ng-click="writeAttr(bean, name, attr)" ng-disabled="!attr.rw">write</button>
+										</span>
+										<input ng-switch-when="java.lang.string" class="form-control col-sm-5" type="text" ng-model="attr.value" ng-disabled="!attr.rw" />
+										<input ng-switch-when="long" class="form-control col-sm-5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
+										<input ng-switch-when="int"  class="form-control col-sm-5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
+										<input ng-switch-when="double" class="form-control col-sm-5" type="number" ng-model="attr.value" ng-disabled="!attr.rw" />
+										<select ng-switch-when="boolean" class="form-control col-sm-5" ng-model="attr.value" ng-disabled="!attr.rw" ng-options="val for val in [true, false]" />
+										<textarea ng-switch-default style="word-break: break-all;" class="form-control col-sm-5" ng-model="attr.jsonValue" ng-disabled="!attr.rw" />
 									</div>
 									<span class="help-block">{{attr.desc}}</span>
-									<span class="help-inline">{{attr.error}}</span>
+									<span class="help-block">{{attr.error}}</span>
 								</div>
 							</div>
 						</form>
 	
 						<form class="form" ng-if="bean.operations !== undefinded">
 							<legend>Operations</legend>
-							<div class="control-group" ng-repeat="(name, op) in bean.operations track by name">
-								<button class="btn span6" style="text-align: left; padding-left: 5px;" ng-click="prepareInvoke(bean, name, op)">
+							<div class="form-group" ng-repeat="(name, op) in bean.operations track by name">
+								<button class="btn btn-default col-md-8" style="text-align: left; padding-left: 5px;" ng-click="prepareInvoke(bean, name, op)">
 									{{name}}<br/>
 									<small class="muted" style="word-break: break-all;">{{op.ret}}</small>
 									<span class="help-block">{{op.desc}}</span>
@@ -81,19 +83,19 @@
 					{{arg.name}} <small class="muted" style="word-break: break-all;">{{arg.type}}</small>
 				</label>
 				<div class="controls" ng-switch="arg.type.toLowerCase()" >
-					<input ng-switch-when="java.lang.string" class="span6" type="text" ng-model="invocation.args[$index]"/>
-					<input ng-switch-when="long" class="span6" type="number" ng-model="invocation.args[$index]" />
-					<input ng-switch-when="int"  class="span6" type="number" ng-model="invocation.args[$index]" />
-					<input ng-switch-when="double" class="span6" type="number" ng-model="invocation.args[$index]" />
-					<select ng-switch-when="boolean" class="span6" ng-model="invocation.args[$index]" ng-options="val for val in [true, false]" />
-					<textarea ng-switch-default style="word-break: break-all;" class="span6" ng-model="invocation.args[$index]" />
+					<input ng-switch-when="java.lang.string" class="col-md-6" type="text" ng-model="invocation.args[$index]"/>
+					<input ng-switch-when="long" class="col-md-6" type="number" ng-model="invocation.args[$index]" />
+					<input ng-switch-when="int"  class="col-md-6" type="number" ng-model="invocation.args[$index]" />
+					<input ng-switch-when="double" class="col-md-6" type="number" ng-model="invocation.args[$index]" />
+					<select ng-switch-when="boolean" class="col-md-6" ng-model="invocation.args[$index]" ng-options="val for val in [true, false]" />
+					<textarea ng-switch-default style="word-break: break-all;" class="col-md-6" ng-model="invocation.args[$index]" />
 					<span class="help-block">{{arg.desc}}</span>
 				</div>
 			</div>
 		</form>
  	</div>
  	<div class="modal-footer">
-   		<button class="btn" ng-click="$dismiss()" >Abort</button>
+   		<button class="btn btn-default" ng-click="$dismiss()" >Abort</button>
    		<button class="btn btn-inverse" ng-click="$close()">Execute</button>
  	</div>
 </script>
@@ -117,7 +119,7 @@
 		</form>
  	</div>
  	<div class="modal-footer">
-   		<button class="btn" ng-click="$dismiss()">Abort</button>
+   		<button class="btn btn-default" ng-click="$dismiss()">Abort</button>
  	</div>  		
 </script>
 	
@@ -137,7 +139,7 @@
   			<pre>{{ invocation.result | json }}</pre>
 		</div>
  		<div ng-switch-when="error">
-  			<div class="alert alert-error">
+  			<div class="alert alert-danger">
   				<b>Error:</b> {{ invocation.error }}
   			</div>
   			<h4>Stacktrace:</h4>
@@ -145,6 +147,6 @@
  		</div>
  	</div>
  	<div class="modal-footer">
-   		<button class="btn" ng-click="$close()">Close</button>
+   		<button class="btn btn-default" ng-click="$close()">Close</button>
  	</div>  		
 </script>
