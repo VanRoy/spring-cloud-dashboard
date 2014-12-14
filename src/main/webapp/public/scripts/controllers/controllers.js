@@ -55,7 +55,7 @@ angular.module('springCloudDashboard')
                if(appState > 0.8) {
                   app.badge = 'success';
                } else if (app.instanceUp == 0) {
-                  app.badge = 'important';
+                  app.badge = 'danger';
                } else {
                   app.badge = 'warning';
                }

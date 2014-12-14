@@ -40,9 +40,11 @@
                 <td>
                     <div class="btn-group pull-right" ng-hide="application.status == null || application.status == 'DOWN' || application.status == 'OUT_OF_SERVICE' || application.health == 'OFFLINE'">
                         <a ui-sref="apps.details.metrics({id: application.id})" class="btn btn-success">Details</a>
+                        <!--
                         <a ui-sref="apps.logging({id: application.id})" class="btn btn-success">Logging</a>
                         <a ui-sref="apps.jmx({id: application.id})" class="btn btn-success">JMX</a>
                         <a ui-sref="apps.threads({id: application.id})" class="btn btn-success">Threads</a>
+                        -->
                     </div>
                 </td>
             </tr>
