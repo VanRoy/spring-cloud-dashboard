@@ -1,24 +1,26 @@
 package net.vanroy.cloud.dashboard.repository;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Pair;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
-
 import net.vanroy.cloud.dashboard.model.Application;
 import net.vanroy.cloud.dashboard.model.Instance;
 import net.vanroy.cloud.dashboard.model.InstanceHistory;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Eureka registry implementation of application repository
  */
 public class EurekaRepository implements ApplicationRepository {
+
+    @Value("${spring.cloud.dashboard.turbine.url:http://localhost:${server.port}/turbine.stream}")
+    private String turbineUrl;
 
     @Override
     public Collection<Application> findAll() {
@@ -28,8 +30,25 @@ public class EurekaRepository implements ApplicationRepository {
     }
 
     @Override
-    public Collection<Application> findByName(String name) {
-        return null;
+    public Application findByName(String name) {
+        return TO_APPLICATION.apply(PeerAwareInstanceRegistry.getInstance().getApplication(name));
+    }
+
+    @Override
+    public String getApplicationCircuitBreakerStreamUrl(String name) {
+        if(findByName(name) == null) {
+            return null;
+        }
+        return turbineUrl+"?cluster="+name;
+    }
+
+    @Override
+    public String getInstanceCircuitBreakerStreamUrl(String instanceId) {
+        String url = getInstanceManagementUrl(instanceId);
+        if( url == null ){
+            return null;
+        }
+        return url+"/hystrix.stream";
     }
 
     @Override

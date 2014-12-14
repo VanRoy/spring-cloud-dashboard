@@ -15,11 +15,12 @@
  */
 package net.vanroy.cloud.dashboard.controller;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import net.vanroy.cloud.dashboard.model.Application;
+import net.vanroy.cloud.dashboard.model.Instance;
+import net.vanroy.cloud.dashboard.model.InstanceHistory;
+import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -31,19 +32,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.google.common.collect.ImmutableMap;
-
-import net.vanroy.cloud.dashboard.model.Application;
-import net.vanroy.cloud.dashboard.model.Instance;
-import net.vanroy.cloud.dashboard.model.InstanceHistory;
-import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller for retrieve applications information.
@@ -70,7 +64,7 @@ public class ApplicationController {
    		if (name == null || name.isEmpty()) {
    			return repository.findAll();
    		} else {
-   			return repository.findByName(name);
+   			return Lists.newArrayList(repository.findByName(name));
    		}
    	}
 

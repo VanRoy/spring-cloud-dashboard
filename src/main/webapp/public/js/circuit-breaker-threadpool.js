@@ -218,7 +218,7 @@
 				}
 			}
 			return resultAsString;
-		};
+		}
 		
 		
 		/* private */ function updateCircle(cssTarget, rate, errorPercentage) {

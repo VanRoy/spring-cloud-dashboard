@@ -1,11 +1,11 @@
 package net.vanroy.cloud.dashboard.repository;
 
-import java.util.Collection;
-import java.util.List;
-
 import net.vanroy.cloud.dashboard.model.Application;
 import net.vanroy.cloud.dashboard.model.Instance;
 import net.vanroy.cloud.dashboard.model.InstanceHistory;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Application repository interface
@@ -21,7 +21,21 @@ public interface ApplicationRepository {
      * @param name the applications name
      * @return all Applications with the specified name;
      */
-    Collection<Application> findByName(String name);
+    Application findByName(String name);
+
+    /**
+     * Return circuit breaker url to application
+     * @param name Name of application
+     * @return Circuit Breaker Stream
+     */
+    String getApplicationCircuitBreakerStreamUrl(String name);
+
+    /**
+     * Return circuit breaker url to instance
+     * @param instanceId Id of instance
+     * @return Circuit Breaker Stream
+     */
+    String getInstanceCircuitBreakerStreamUrl(String instanceId);
 
     /**
      * @param id the instance by id

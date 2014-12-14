@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 import net.vanroy.cloud.dashboard.turbine.MockStreamServlet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,26 +97,34 @@ public class DashboardApplicationTest {
                 @Override
                 public Collection<Application> findAll() {
                     return ImmutableList.of(
-                        new Application("MESSAGE",
+                        new Application("MESSAGES",
                                 ImmutableList.of(
                                 new Instance("http://192168.0.20:8080", "INSTANCE 1", "ID1", "UP"),
                                 new Instance("http://localhost:8002", "INSTANCE 2", "ID2", "DOWN"),
                                 new Instance("http://localhost:8003", "INSTANCE 3", "ID3", "STARTING")
-                            )
-                        ),
+                            )),
                         new Application("FRONT",
                             ImmutableList.of(
                                 new Instance("http://localhost:8001", "FRONT INSTANCE 1", "FRONT ID1","OUT_OF_SERVICE"),
                                 new Instance("http://localhost:8002", "FRONT INSTANCE 2", "FRONT ID2","DOWN"),
                                 new Instance("http://localhost:8003", "FRONT INSTANCE 3", "FRONT ID3","UNKNOWN")
-                            )
-                        )
+                            ))
                     );
                 }
 
                 @Override
-                public Collection<Application> findByName(String name) {
-                    return null;
+                public Application findByName(String name) {
+                    return new Application(name, null);
+                }
+
+                @Override
+                public String getApplicationCircuitBreakerStreamUrl(String name) {
+                    return "http://localhost:8001/turbine.stream?cluster="+name;
+                }
+
+                @Override
+                public String getInstanceCircuitBreakerStreamUrl(String instanceId) {
+                    return "http://localhost:8002/hystrix.stream";
                 }
 
                 @Override

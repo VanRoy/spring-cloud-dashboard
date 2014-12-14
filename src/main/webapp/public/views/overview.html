@@ -6,11 +6,11 @@
     <div class="col-md-4">
 
         <tabset class="tabs-inverse" vertical="true" type="pills" ng-init="visible = []">
-            <tab select="selectApp($index)" ng-repeat="app in applications track by app.name" select="visible[app.name] =  true" deselect="visible[app.name] = false">
+            <tab select="selectApp($index)" ng-repeat="application in applications track by application.name" select="visible[application.name] =  true" deselect="visible[application.name] = false">
                 <tab-heading>
-                    <strong>{{app.name}}</strong>
+                    <strong>{{application.name}}</strong>
                     <div class="pull-right">
-                        <span class="label label-{{app.badge}}">{{ app.instanceUp }} / {{ app.instanceCount }}</span>
+                        <span class="label label-{{application.badge}}">{{ application.instanceUp }} / {{ application.instanceCount }}</span>
                     </div>
                 </tab-heading>
             </tab>
@@ -18,6 +18,12 @@
 
     </div>
     <div class="col-md-8">
+
+        <span class="h3 pull-left" style="margin-bottom: 0px;margin-top: 8px;">{{app.name}}</span>
+
+        <div class="pull-right">
+            <a class="btn btn-sm btn-success" ui-sref="circuit-breaker({type: 'app', id: app.name})">Circuit breakers</a>
+        </div>
 
         <table class="table table-striped">
             <thead>
@@ -30,20 +36,20 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="application in app.instances track by application.id">
-                <td>{{ application.name }}<br/><span class="muted">{{ application.url }}</span></td>
-                <td>{{ application.version }}</td>
-                <td><span ng-repeat="(name, value) in application.info track by name">{{name}}: {{value}}<br></span></td>
-                <td><span class="status-{{application.status}}">{{ application.status }}</span>
-                    <span ng-show="application.refreshing" class="refresh"></span></td>
-                <td><span class="status-{{application.health}}">{{ application.health }}</span></td>
+            <tr ng-repeat="instance in app.instances track by instance.id">
+                <td>{{ instance.name }}<br/><span class="muted">{{ instance.url }}</span></td>
+                <td>{{ instance.version }}</td>
+                <td><span ng-repeat="(name, value) in instance.info track by name">{{name}}: {{value}}<br></span></td>
+                <td><span class="status-{{instance.status}}">{{ instance.status }}</span>
+                    <span ng-show="instance.refreshing" class="refresh"></span></td>
+                <td><span class="status-{{instance.health}}">{{ instance.health }}</span></td>
                 <td>
-                    <div class="btn-group pull-right" ng-hide="application.status == null || application.status == 'DOWN' || application.status == 'OUT_OF_SERVICE' || application.health == 'OFFLINE'">
-                        <a ui-sref="apps.details.metrics({id: application.id})" class="btn btn-success">Details</a>
+                    <div class="btn-group pull-right" ng-hide="instance.status == null || instance.status == 'DOWN' || instance.status == 'OUT_OF_SERVICE' || instance.health == 'OFFLINE'">
+                        <a ui-sref="apps.details.metrics({id: instance.id})" class="btn btn-success">Details</a>
                         <!--
-                        <a ui-sref="apps.logging({id: application.id})" class="btn btn-success">Logging</a>
-                        <a ui-sref="apps.jmx({id: application.id})" class="btn btn-success">JMX</a>
-                        <a ui-sref="apps.threads({id: application.id})" class="btn btn-success">Threads</a>
+                        <a ui-sref="apps.logging({id: instance.id})" class="btn btn-success">Logging</a>
+                        <a ui-sref="apps.jmx({id: instance.id})" class="btn btn-success">JMX</a>
+                        <a ui-sref="apps.threads({id: instance.id})" class="btn btn-success">Threads</a>
                         -->
                     </div>
                 </td>

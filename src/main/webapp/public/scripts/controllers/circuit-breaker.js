@@ -16,10 +16,18 @@
 'use strict';
 
 angular.module('springCloudDashboard')
-    .controller('circuitBreakerCtrl',  ['$scope',
-        function ($scope) {
+    .controller('circuitBreakerCtrl',  ['$scope', '$stateParams', 'Instance',
+        function ($scope, $stateParams, Instance) {
 
-        var stream = "/turbine.stream";
+        if($stateParams.type == 'app') {
+            var stream = "/circuitBreaker.stream?appName="+$stateParams.id;
+            $scope.subtitle = $stateParams.id;
+        } else if($stateParams.type == 'instance') {
+            var stream = "/circuitBreaker.stream?instanceId="+$stateParams.id;
+            var instance = Instance.query({id: $stateParams.id}, function(instance){
+                $scope.subtitle = instance.name;
+            });
+        }
 
         // commands
         window.hystrixMonitor = new HystrixCommandMonitor('dependencies', {includeDetailIcon:false});

@@ -15,18 +15,20 @@
  */
 package net.vanroy.cloud.dashboard.config;
 
+import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import net.vanroy.cloud.dashboard.repository.EurekaRepository;
+import net.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
-import net.vanroy.cloud.dashboard.repository.EurekaRepository;
 
 /**
  * Spring Cloud Dashboard WebApp configuration
@@ -36,11 +38,19 @@ import net.vanroy.cloud.dashboard.repository.EurekaRepository;
 @ComponentScan("net.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
+    @Autowired
+    private ApplicationRepository repository;
+
     @Bean
     @ConditionalOnClass(EurekaDiscoveryClient.class)
     @ConditionalOnMissingBean(ApplicationRepository.class)
     public EurekaRepository eurekaRepository() {
         return new EurekaRepository();
+    }
+
+    @Bean
+    public ServletRegistrationBean circuitBreakerStreamServlet() {
+        return new ServletRegistrationBean(new CircuitBreakerStreamServlet(HttpClient(), repository), "/circuitBreaker.stream");
     }
 
     @Bean

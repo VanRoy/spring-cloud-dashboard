@@ -54,7 +54,7 @@ angular.module('springCloudDashboard', [
                 controller: 'appsHistoryCtrl'
             })
 			.state('circuit-breaker', {
-				url: '/circuit-breaker',
+				url: '/circuit-breaker/:type/:id',
 				templateUrl: 'views/circuit-breaker/index.html',
 				controller: 'circuitBreakerCtrl'
 			})
