@@ -16,63 +16,59 @@
 'use strict';
 
 angular.module('springCloudDashboard')
-       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', 'Applications', 'InstanceOverview', 'Instance',
-                                    function ($scope, $location, $interval, $q, Applications, InstanceOverview, Instance) {
+       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams', '$timeout', '$state', 'Applications', 'InstanceOverview', 'Instance',
+                                    function ($scope, $location, $interval, $q, $stateParams, $timeout, $state, Applications, InstanceOverview, Instance) {
 
-    	   $scope.getApp = function(name) {
-               for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
-                   if (name === $scope.applications[j].name) {
-                       return $scope.applications[j];
-                   }
-               }
-           };
+		$scope.findApp = function(name) {
+			for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
+				if (name === $scope.applications[j].name) {
+					return $scope.applications[j];
+				}
+			}
+		};
 
-           $scope.getInstance = function(app, instanceId) {
-               for ( var j = 0; app.instances != null && j < app.instances.length; j++ ) {
-                   if(instanceId === app.instances[j].id) {
-                       return app.instances[j];
-                   }
-               }
-           };
+		$scope.selectApp = function (name) {
+			$scope.selectedAppName = name;
+			$scope.selectedApp = $scope.findApp(name);
+			if(angular.isDefined($scope.selectedApp)) {
+				$scope.selectedApp.active = true;
+			}
 
-           $scope.updateApStatus = function(app) {
+		};
 
-               var existApp = $scope.getApp(app);
-               if(existApp) {
-                   app = existApp;
-               }
+		$scope.updateApStatus = function(app) {
 
-               var instanceUp = 0, instanceCount = 0;
+		   var instanceUp = 0, instanceCount = 0;
 
-               app.instances.forEach(function(instance) {
-                   instanceCount++;
-                   if(instance.health == 'UP') {
-                      instanceUp++;
-                   }
-               });
+		   app.instances.forEach(function(instance) {
+			   instanceCount++;
+			   if(instance.health == 'UP') {
+				  instanceUp++;
+			   }
+		   });
 
-               var appState = instanceUp / instanceCount;
-               if(appState > 0.8) {
-                  app.badge = 'success';
-               } else if (app.instanceUp == 0) {
-                  app.badge = 'danger';
-               } else {
-                  app.badge = 'warning';
-               }
+		   var appState = instanceUp / instanceCount;
+		   if(appState > 0.8) {
+			  app.badge = 'success';
+		   } else if (app.instanceUp == 0) {
+			  app.badge = 'danger';
+		   } else {
+			  app.badge = 'warning';
+		   }
 
-               app.instanceUp = instanceUp;
-               app.instanceCount = instanceCount;
-           	};
+		   app.instanceUp = instanceUp;
+		   app.instanceCount = instanceCount;
+		};
 
-    	   	$scope.loadData = function() {
+		$scope.loadData = function() {
 
-				Applications.query(function(applications) {
+			return Applications.query(function(applications) {
 
                 applications.forEach(function(app) {
 
                     app.instances.forEach(function(instance) {
 
-						InstanceOverview.getHealth(instance).finally(function(){
+						InstanceOverview.getHealth(instance).finally(function() {
 							$scope.updateApStatus(app);
 						});
 
@@ -81,32 +77,31 @@ angular.module('springCloudDashboard')
                 });
 
 	  			$scope.applications = applications;
+
+				//Refresh current selected App
+				if ($scope.selectedAppName) {
+					$scope.selectApp($scope.selectedAppName);
+				} else {
+					$timeout(function() {
+						if(applications.length > 0) $state.go('overview.select', {id: applications[0].name});
+					}, 10);
+				}
 	  		});
-
-			$scope.selectApp = function(appIndex) {
-
-			   var app = $scope.applications[appIndex];
-
-			   app.instances.forEach(function(instance) {
-
-				   instance.refreshing = true;
-
-				   var healthPromise = InstanceOverview.getHealth(instance);
-				   healthPromise.finally(function(){$scope.updateApStatus(app)});
-
-				   $q.all(InstanceOverview.getInfo(instance), healthPromise).finally(function () { instance.refreshing = false; });
-			   });
-
-			   $scope.app = app;
-		   	}
   		};
-  		$scope.loadData();
 
-  		// reload site every 30 seconds
-  		var task = $interval(function() {
-  			$scope.loadData();
-  		}, 30000);
+		$scope.loadData();
+
+		// reload site every 30 seconds
+		var task = $interval(function() {
+			$scope.loadData();
+		}, 30000);
   	}])
+	.controller('overviewSelectedCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams','Applications', 'InstanceOverview', 'Instance',
+	function ($scope, $location, $interval, $q, $stateParams, Applications, InstanceOverview, Instance) {
+
+		$scope.selectApp($stateParams.id);
+
+	}])
     .controller('appsHistoryCtrl',  ['$scope', 'InstancesHistory', function ($scope, InstancesHistory) {
         InstancesHistory.query(function(history) {
             $scope.registered = history.lastRegistered;

@@ -33,6 +33,11 @@ angular.module('springCloudDashboard', [
 	  			templateUrl: 'views/overview.html',
 	  			controller: 'overviewCtrl'
 	  		})
+			.state('overview.select', {
+				url: '/:id',
+				templateUrl: 'views/overview.selected.html',
+				controller: 'overviewSelectedCtrl'
+			})
   			.state('about', {
   				url: '/about',
   				templateUrl: 'views/about.html'
