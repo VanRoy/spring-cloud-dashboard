@@ -70,7 +70,7 @@ public class DashboardApplicationTest {
         assertNotNull(entity.getBody());
         assertEquals(2, entity.getBody().size());
         Map<String, Object> application = (Map<String, Object>) entity.getBody().get(0);
-        assertEquals("MESSAGE", application.get("name"));
+        assertEquals("MESSAGES", application.get("name"));
         assertEquals(3, ((List)application.get("instances")).size());
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}

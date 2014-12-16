@@ -32,8 +32,8 @@ angular.module('springCloudDashboard')
 			$scope.selectedApp = $scope.findApp(name);
 			if(angular.isDefined($scope.selectedApp)) {
 				$scope.selectedApp.active = true;
+				$scope.selectedApp.instances.forEach(function(instance) { InstanceOverview.getInfo(instance) });
 			}
-
 		};
 
 		$scope.updateApStatus = function(app) {
