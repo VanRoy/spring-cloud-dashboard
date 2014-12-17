@@ -86,8 +86,8 @@ public class DashboardApplicationTest {
 
 
         @Bean
-        public ServletRegistrationBean turbineStreamServlet() {
-            return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/turbine.stream");
+        public ServletRegistrationBean circuitBreakerStreamServlet() {
+            return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/circuitBreaker.stream");
         }
 
         @Bean
