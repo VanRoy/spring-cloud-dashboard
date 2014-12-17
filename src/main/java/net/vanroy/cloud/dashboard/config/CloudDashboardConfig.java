@@ -38,9 +38,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan("net.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private ApplicationRepository repository;
-
     @Bean
     @ConditionalOnClass(EurekaDiscoveryClient.class)
     @ConditionalOnMissingBean(ApplicationRepository.class)
@@ -49,7 +46,8 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public ServletRegistrationBean circuitBreakerStreamServlet() {
+    @Autowired
+    public ServletRegistrationBean circuitBreakerStreamServlet(ApplicationRepository repository) {
         return new ServletRegistrationBean(new CircuitBreakerStreamServlet(HttpClient(), repository), "/circuitBreaker.stream");
     }
 
