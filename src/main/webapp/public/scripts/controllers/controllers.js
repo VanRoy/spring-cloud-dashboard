@@ -16,8 +16,8 @@
 'use strict';
 
 angular.module('springCloudDashboard')
-       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams', '$timeout', '$state', 'Applications', 'InstanceOverview', 'Instance',
-                                    function ($scope, $location, $interval, $q, $stateParams, $timeout, $state, Applications, InstanceOverview, Instance) {
+       .controller('overviewCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams', '$timeout', '$state', 'Applications', 'ApplicationOverview', 'InstanceOverview',
+                                    function ($scope, $location, $interval, $q, $stateParams, $timeout, $state, Applications, ApplicationOverview, InstanceOverview) {
 
 		$scope.findApp = function(name) {
 			for ( var j = 0; $scope.applications != null && j < $scope.applications.length; j++ ) {
@@ -31,6 +31,7 @@ angular.module('springCloudDashboard')
 			$scope.selectedAppName = name;
 			$scope.selectedApp = $scope.findApp(name);
 			if(angular.isDefined($scope.selectedApp)) {
+				ApplicationOverview.getCircuitBreakerInfo($scope.selectedApp);
 				$scope.selectedApp.active = true;
 				$scope.selectedApp.instances.forEach(function(instance) { InstanceOverview.getInfo(instance) });
 			}
@@ -157,6 +158,12 @@ angular.module('springCloudDashboard')
 			 }]);
 		}).error( function(error) {
 			$scope.error = error;
+		});
+
+		InstanceDetails.getCircuitBreakerInfo(instance).success(function(){
+			instance.circuitBreaker = true;
+		}).error(function() {
+			instance.circuitBreaker = false;
 		});
 
   		var start = Date.now();

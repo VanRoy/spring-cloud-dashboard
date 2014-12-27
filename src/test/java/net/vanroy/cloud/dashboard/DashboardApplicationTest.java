@@ -86,8 +86,8 @@ public class DashboardApplicationTest {
 
 
         @Bean
-        public ServletRegistrationBean circuitBreakerStreamServlet() {
-            return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/circuitBreaker.stream");
+        public ServletRegistrationBean hystrixStreamServlet() {
+            return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/hystrix.stream");
         }
 
         @Bean
@@ -119,17 +119,26 @@ public class DashboardApplicationTest {
 
                 @Override
                 public String getApplicationCircuitBreakerStreamUrl(String name) {
-                    return "http://localhost:8001/turbine.stream?cluster="+name;
+                    if(name.equalsIgnoreCase("MESSAGES")) {
+                        return "http://localhost:8761/hystrix.stream";
+                    } else {
+                        return "http://localhost:8761/hystrixFail.stream";
+                    }
+                    //return "http://localhost:8001/turbine.stream?cluster="+name;
                 }
 
                 @Override
                 public String getInstanceCircuitBreakerStreamUrl(String instanceId) {
-                    return "http://localhost:8002/hystrix.stream";
+                    if(instanceId.equalsIgnoreCase("ID1")) {
+                        return "http://localhost:8761/hystrix.stream";
+                    } else {
+                        return "http://localhost:8761/hystrixFail.stream";
+                    }
                 }
 
                 @Override
                 public Instance findInstance(String id) {
-                    return new Instance("http://localhost:8002", "INSTANCE 1", "ID1", "UP");
+                    return new Instance("http://localhost:8002", "INSTANCE "+id, id, "UP");
                 }
 
                 @Override

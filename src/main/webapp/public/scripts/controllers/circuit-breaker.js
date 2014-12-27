@@ -30,18 +30,18 @@ angular.module('springCloudDashboard')
         }
 
         // commands
-        window.hystrixMonitor = new HystrixCommandMonitor('dependencies', {includeDetailIcon:false});
+        $scope.hystrixMonitor = new HystrixCommandMonitor('dependencies', {includeDetailIcon:false});
 
         // sort by error+volume by default
-        hystrixMonitor.sortByErrorThenVolume();
+        $scope.hystrixMonitor.sortByErrorThenVolume();
 
         // start the EventSource which will open a streaming connection to the server
-        var source = new EventSource(stream);
+        $scope.source = new EventSource(stream);
 
         // add the listener that will process incoming events
-        source.addEventListener('message', hystrixMonitor.eventSourceMessageListener, false);
+        $scope.source.addEventListener('message', $scope.hystrixMonitor.eventSourceMessageListener, false);
 
-        source.addEventListener('error', function(e) {
+        $scope.source.addEventListener('error', function(e) {
             if (e.eventPhase == EventSource.CLOSED) {
                 // Connection was closed.
                 console.log("Connection was closed on error: " + JSON.stringify(e));
@@ -51,17 +51,17 @@ angular.module('springCloudDashboard')
         }, false);
 
         // thread pool
-        window.dependencyThreadPoolMonitor = new HystrixThreadPoolMonitor('dependencyThreadPools');
+        $scope.dependencyThreadPoolMonitor = new HystrixThreadPoolMonitor('dependencyThreadPools');
 
-        dependencyThreadPoolMonitor.sortByVolume();
+        $scope.dependencyThreadPoolMonitor.sortByVolume();
 
         // start the EventSource which will open a streaming connection to the server
-        var threadSource = new EventSource(stream);
+        $scope.threadSource = new EventSource(stream);
 
         // add the listener that will process incoming events
-        threadSource.addEventListener('message', dependencyThreadPoolMonitor.eventSourceMessageListener, false);
+        $scope.threadSource.addEventListener('message', $scope.dependencyThreadPoolMonitor.eventSourceMessageListener, false);
 
-        threadSource.addEventListener('error', function(e) {
+        $scope.threadSource.addEventListener('error', function(e) {
             if (e.eventPhase == EventSource.CLOSED) {
                 // Connection was closed.
                 console.log("Connection was closed on error: " + e);
@@ -69,4 +69,9 @@ angular.module('springCloudDashboard')
                 console.log("Error occurred while streaming: " + e);
             }
         }, false);
+
+        $scope.$on('$destroy', function clearEventSource() {
+            if($scope.source) { $scope.source.close(); delete $scope.source; }
+            if($scope.threadSource) { $scope.threadSource.close(); delete $scope.threadSource; }
+        })
     }]);

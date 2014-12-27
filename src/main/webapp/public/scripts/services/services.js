@@ -23,6 +23,18 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   			});
   		}
   	])
+
+	.service('ApplicationOverview', ['$http', function($http) {
+		this.getCircuitBreakerInfo = function(application) {
+			return $http.head('/circuitBreaker.stream', {
+				params: {appName: application.name}
+			}).success(function(response) {
+				application.circuitBreaker = true;
+			}).error(function() {
+				application.circuitBreaker = false;
+			});
+		};
+	}])
   	.factory('Instance', ['$resource', function($resource) {
   		return $resource(
   			'api/instance/:id', {}, {
@@ -73,8 +85,12 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   		};
   		this.getHealth = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/health/');
-  		}
-
+  		};
+		this.getCircuitBreakerInfo = function(instance) {
+			return $http.head('/circuitBreaker.stream', {
+				params: {instanceId: instance.id}
+			});
+		};
   	}])
   	.service('InstanceLogging', ['$http' , 'Jolokia', function($http, jolokia) {
   		var LOGBACK_MBEAN = 'ch.qos.logback.classic:Name=default,Type=ch.qos.logback.classic.jmx.JMXConfigurator';
@@ -329,4 +345,4 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   		this.getDump = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/dump/');
   		}
-  	}]);
+  	}	]);

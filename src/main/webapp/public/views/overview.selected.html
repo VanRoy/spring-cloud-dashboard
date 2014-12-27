@@ -4,7 +4,7 @@
     <span class="h3 pull-left" style="margin-bottom: 0px;margin-top: 8px;">{{selectedApp.name}}</span>
 
     <div class="pull-right">
-        <a class="btn btn-sm btn-success" ui-sref="circuit-breaker({type: 'app', id: selectedApp.name})">Circuit breakers</a>
+        <a class="btn btn-sm btn-success" ui-sref="circuit-breaker({type: 'app', id: selectedApp.name})" ng-disabled="selectedApp.circuitBreaker !== true">Circuit breakers</a>
     </div>
 
     <table class="table table-striped">

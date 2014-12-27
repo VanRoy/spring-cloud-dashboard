@@ -56,10 +56,10 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
     @Bean
     public HttpClient HttpClient() {
         return HttpClients.custom()
-                .setMaxConnTotal(20)
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(1000).build())
+                .setMaxConnTotal(100)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(2000).build())
                 .setDefaultRequestConfig(RequestConfig.custom()
-                    .setSocketTimeout(1000)
+                    .setSocketTimeout(2000)
                     .setConnectTimeout(1000)
                     .setConnectionRequestTimeout(1000).build())
                 .build();

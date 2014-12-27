@@ -6,6 +6,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,53 +67,64 @@ public class CircuitBreakerStreamServlet extends HttpServlet {
             }
         }
 
-        HttpGet httpget = null;
+        HttpUriRequest httpRequest = null;
         InputStream is = null;
 
         logger.info("\n\nProxy opening connection to: " + proxyUrl + "\n\n");
         try {
-            httpget = new HttpGet(proxyUrl);
-            HttpResponse httpResponse = httpClient.execute(httpget);
+            if(HttpHead.METHOD_NAME.equalsIgnoreCase(request.getMethod())) {
+                httpRequest = new HttpHead(proxyUrl);
+            } else {
+                httpRequest = new HttpGet(proxyUrl);
+            }
+
+            HttpResponse httpResponse = httpClient.execute(httpRequest);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
                 // writeTo swallows exceptions and never quits even if outputstream is throwing IOExceptions (such as broken pipe) ... since the inputstream is infinite
                 // httpResponse.getEntity().writeTo(new OutputStreamWrapper(response.getOutputStream()));
                 // so I copy it manually ...
-                is = httpResponse.getEntity().getContent();
+                if(httpResponse.getEntity() != null) {
 
-                // set headers
-                for (Header header : httpResponse.getAllHeaders()) {
-                    response.addHeader(header.getName(), header.getValue());
-                }
+                    is = httpResponse.getEntity().getContent();
 
-                // copy data from source to response
-                OutputStream os = response.getOutputStream();
-                int b = -1;
-                while ((b = is.read()) != -1) {
-                    try {
-                        os.write(b);
-                        if (b == 10 /** flush buffer on line feed */) {
-                            os.flush();
-                        }
-                    } catch (Exception e) {
-                        if (e.getClass().getSimpleName().equalsIgnoreCase("ClientAbortException")) {
-                            // don't throw an exception as this means the user closed the connection
-                            logger.debug("Connection closed by client. Will stop proxying ...");
-                            // break out of the while loop
-                            break;
-                        } else {
-                            // received unknown error while writing so throw an exception
-                            throw new RuntimeException(e);
+                    // set headers
+                    for (Header header : httpResponse.getAllHeaders()) {
+                        response.addHeader(header.getName(), header.getValue());
+                    }
+
+                    // copy data from source to response
+                    OutputStream os = response.getOutputStream();
+                    int b;
+                    while ((b = is.read()) != -1) {
+                        try {
+                            os.write(b);
+                            if (b == 10 /** flush buffer on line feed */) {
+                                os.flush();
+                            }
+                        } catch (Exception e) {
+                            if (e.getClass().getSimpleName().equalsIgnoreCase("ClientAbortException")) {
+                                // don't throw an exception as this means the user closed the connection
+                                logger.debug("Connection closed by client. Will stop proxying ...");
+                                // break out of the while loop
+                                break;
+                            } else {
+                                // received unknown error while writing so throw an exception
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }
+            } else {
+                response.setStatus(statusCode);
             }
         } catch (Exception e) {
             logger.error("Error proxying request: " + proxyUrl, e);
+            response.setStatus(500);
         } finally {
-            if (httpget != null) {
+            if (httpRequest != null) {
                 try {
-                    httpget.abort();
+                    httpRequest.abort();
                 } catch (Exception e) {
                     logger.error("failed aborting proxy connection.", e);
                 }

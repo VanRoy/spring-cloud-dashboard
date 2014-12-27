@@ -24,7 +24,6 @@ public class Application {
 
 	private final String name;
 	private final List<Instance> instances;
-	private final boolean circuitBreaker = true;
 
 	public Application(String name, List<Instance> instances) {
 		this.name = name;
@@ -37,9 +36,5 @@ public class Application {
 
 	public List<Instance> getInstances() {
 		return instances;
-	}
-
-	public boolean getCircuitBreaker() {
-		return circuitBreaker;
 	}
 }

@@ -32,6 +32,12 @@ public class MockStreamServlet extends HttpServlet {
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        if("HEAD".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(200);
+            return;
+        }
+
         int delay = 500;
         String delayArg = request.getParameter("delay");
         if (delayArg != null) {
