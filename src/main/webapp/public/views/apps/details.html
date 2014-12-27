@@ -5,7 +5,7 @@
 <div class="container">
 	<div class="col-md-6">
 	    <table class="table">
-	     <thead><tr><th>Application</th><th><small class="pull-right"><a href="{{ instance.url }}/info">raw JSON</a></small></th></tr></thead>
+	     <thead><tr><th>Application</th><th><small class="pull-right"><a href="api/instance/{{ instance.id }}/info">raw JSON</a></small></th></tr></thead>
 	    <tbody>
 	      <tr ng-repeat="(key, value) in info" >
 	        <td>{{ key }}</td><td>{{ value }}</td>
@@ -17,7 +17,7 @@
 	 <div class="col-md-6">
 		<table class="table">
 			<thead>
-				<tr><th>Health Checks</th><th><small class="pull-right"><a href="{{ instance.url }}/health">raw JSON</a></small></th></tr>
+				<tr><th>Health Checks</th><th><small class="pull-right"><a href="api/instance/{{ instance.id }}/health">raw JSON</a></small></th></tr>
 			</thead>
 			<tbody>
 				<tr>
@@ -50,7 +50,7 @@
 	
 	<div class="col-md-6">
 	  <table class="table">
-	    <thead><tr><th colspan="2">Memory</th></tr></thead>
+	    <thead><tr><th colspan="2">Memory</th><th><small class="pull-right"><a href="api/instance/{{ instance.id }}/metrics">raw JSON</a></small></th></tr></thead>
 	    <tbody>
 	      <tr>
 	        <td colspan="2">
@@ -87,14 +87,14 @@
 	
 	<div class="col-md-6">
 	  <table class="table">
-	    <thead><tr><th>JVM</th><th><small class="pull-right"><a href="{{ instance.url }}/metrics">raw JSON</a></small></th></tr></thead>
+	    <thead><tr><th>JVM</th><th><small class="pull-right"><a href="api/instance/{{ instance.id }}/metrics">raw JSON</a></small></th></tr></thead>
 	    <tbody>
 	      <tr ng-if="metrics['systemload.average'] != null && metrics['systemload.average'] >= 0.0">
 	        <td colspan="2">Systemload (last minute average)
 	        	<div class="progress" style="margin-bottom: 0px;">
-	            	<div class="progress-bar" style="width:{{ metrics['systemload.average'] * 100 | number:0 }}%;"
-	               		ng-class="{'progress-bar-success': metrics['systemload.average'] < 0.75, 'progress-bar-warning': metrics['systemload.average'] >= 0.75 && metrics['systemload.average'] < 0.95, 'progress-bar-danger': metrics['systemload.average'] >= 0.95}">
-	              		{{metrics['systemload.average'] * 100 | number:0}}%
+	            	<div class="progress-bar" style="width:{{ metrics['systemload.averagepercent']| number:0 }}%;"
+	               		ng-class="{'progress-bar-success': metrics['systemload.averagepercent'] < 75, 'progress-bar-warning': metrics['systemload.averagepercent'] >= 75 && metrics['systemload.averagepercent'] < 95, 'progress-bar-danger': metrics['systemload.averagepercent'] >= 95}">
+	              		{{metrics['systemload.averagepercent'] | number:0}}%
 	            	</div>
 	          	</div>
 	        </td>
@@ -129,7 +129,7 @@
 	
 	<div class="col-md-6">
 	  <table class="table">
-	    <thead><tr><th colspan="2">Garbage Collection</th></tr></thead>
+	    <thead><tr><th colspan="2">Garbage Collection</th><th><small class="pull-right"><a href="api/instance/{{ instance.id }}/metrics">raw JSON</a></small></th></tr></thead>
 	      <tr ng-repeat-start="(name, value) in gcInfos track by name">
 	        <td>{{name | capitalize}} GC Count</td>
 	        <td>{{value.count}}</td>

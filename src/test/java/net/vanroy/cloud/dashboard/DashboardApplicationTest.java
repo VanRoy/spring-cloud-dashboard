@@ -99,7 +99,7 @@ public class DashboardApplicationTest {
                     return ImmutableList.of(
                         new Application("MESSAGES",
                                 ImmutableList.of(
-                                new Instance("http://192168.0.20:8080", "INSTANCE 1", "ID1", "UP"),
+                                new Instance("http://localhost:8761", "INSTANCE 1", "ID1", "UP"),
                                 new Instance("http://localhost:8002", "INSTANCE 2", "ID2", "DOWN"),
                                 new Instance("http://localhost:8003", "INSTANCE 3", "ID3", "STARTING")
                             )),
@@ -134,7 +134,7 @@ public class DashboardApplicationTest {
 
                 @Override
                 public String getInstanceManagementUrl(String id) {
-                    return "http://localhost:8080/";
+                    return "http://localhost:8761/";
                 }
 
                 @Override

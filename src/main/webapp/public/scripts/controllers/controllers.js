@@ -130,6 +130,8 @@ angular.module('springCloudDashboard')
 			$scope.metrics = metrics;
 			$scope.metrics["mem.used"] = $scope.metrics["mem"] - $scope.metrics["mem.free"];
 
+			$scope.metrics["systemload.averagepercent"] = $scope.metrics["systemload.average"] / $scope.metrics["processors"] * 100;
+
 			$scope.gcInfos = {};
 			$scope.datasources = {};
 
@@ -450,8 +452,4 @@ angular.module('springCloudDashboard')
 	  			$scope.error = error;
 	  		});
   		}
-  	}])
-	.controller('circuitBreakerCtrl',  ['$scope',
-		function ($scope) {
-
-	}]);
+  	}]);
