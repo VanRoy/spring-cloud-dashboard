@@ -91,7 +91,7 @@ public class ApplicationController {
      * @param method Management method name
      * @return Return directly from instance
      */
-    @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/instance/{id}/{method}", method = RequestMethod.GET)
    	public ResponseEntity<String> proxy(@PathVariable String id, @PathVariable String method) {
 
         String managementUrl = repository.getInstanceManagementUrl(id);
@@ -114,7 +114,7 @@ public class ApplicationController {
      * @param method Management method name
      * @return Return directly from instance
      */
-    @RequestMapping(value = "/api/instance/{id}/{method}/", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/instance/{id}/{method}", method = RequestMethod.POST)
    	public ResponseEntity<String> proxyPost(@PathVariable String id, @PathVariable String method, @RequestBody String body) {
 
         String managementUrl = repository.getInstanceManagementUrl(id);
