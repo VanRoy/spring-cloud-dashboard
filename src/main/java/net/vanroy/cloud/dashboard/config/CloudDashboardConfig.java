@@ -19,6 +19,8 @@ import net.vanroy.cloud.dashboard.repository.ApplicationRepository;
 import net.vanroy.cloud.dashboard.repository.EurekaRepository;
 import net.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -53,6 +55,13 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public HttpClient HttpClient() {
-        return HttpClients.custom().setMaxConnTotal(20).build();
+        return HttpClients.custom()
+                .setMaxConnTotal(20)
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(1000).build())
+                .setDefaultRequestConfig(RequestConfig.custom()
+                    .setSocketTimeout(1000)
+                    .setConnectTimeout(1000)
+                    .setConnectionRequestTimeout(1000).build())
+                .build();
     }
 }
