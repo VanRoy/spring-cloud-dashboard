@@ -1,0 +1,25 @@
+<groups xmlns="http://www.isdc.ro/wro">
+  <group name="dashboard">
+	<css minimize="false">webjar:bootstrap/${bootstrap.version}/css/bootstrap.min.css</css>
+	<css minimize="false">webjar:webjars/nvd3/${nvd3.version}/nv.d3.min.css</css>
+    <css minimize="true">/styles/main.css</css>
+
+    <js minimize="false">webjar:jquery/${jquery.version}/jquery.min.js</js>
+    <js minimize="false">webjar:angularjs/${angularjs.version}/angular.min.js</js>
+    <js minimize="false">webjar:bootstrap/${bootstrap.version}/js/bootstrap.min.js</js>
+    <js minimize="false">webjar:angularjs/${angularjs.version}/angular-resource.min.js</js>
+    <js minimize="false">webjar:angularjs/${angularjs.version}/angular-route.min.js</js>
+    <js minimize="false">webjar:angular-ui-router/${angular-ui-router.version}/angular-ui-router.min.js</js>
+    <js minimize="false">webjar:angular-ui-bootstrap/${angular-ui-bootstrap.version}/ui-bootstrap.min.js</js>
+    <js minimize="false">webjar:angular-ui-bootstrap/${angular-ui-bootstrap.version}/ui-bootstrap-tpls.min.js</js>
+    <js minimize="false">webjar:d3js/${d3js.version}/d3.min.js</js>
+    <js minimize="false">webjar:nvd3/${nvd3.version}/nv.d3.min.js</js>
+    <js minimize="false">webjar:angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives.js</js>
+    <js minimize="false">webjar:jolokia.js/${jolokia-js.version}/jolokia.js</js>
+    <js minimize="true">/scripts/app.js</js>
+    <js minimize="true">/scripts/controllers/controllers.js</js>
+    <js minimize="true">/scripts/controllers/circuit-breaker.js</js>
+    <js minimize="true">/scripts/services/services.js</js>
+    <js minimize="true">/scripts/filters/filters.js</js>
+  </group>
+</groups>
