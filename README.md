@@ -45,6 +45,10 @@ public class Application {
 }
 ```
 
+#### Samples:
+
+Samples are available in this repository : https://github.com/VanRoy/spring-cloud-dashboard-samples
+
 #### Screenshot:
 
 ##### Application registry:
