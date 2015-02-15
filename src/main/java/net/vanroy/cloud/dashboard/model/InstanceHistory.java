@@ -3,8 +3,8 @@ package net.vanroy.cloud.dashboard.model;
 import java.util.Date;
 
 /**
- * @author: Julien Roy
- * @version: $Id$
+ * The domain model for an instance history
+ * @author Julien Roy
  */
 public class InstanceHistory {
 

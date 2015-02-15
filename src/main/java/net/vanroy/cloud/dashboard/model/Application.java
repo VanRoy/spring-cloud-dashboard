@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * The domain model for all application at the spring cloud dashboard application.
+ * @author Julien Roy
  */
 public class Application {
 

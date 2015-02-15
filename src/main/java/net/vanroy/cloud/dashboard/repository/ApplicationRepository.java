@@ -2,13 +2,12 @@ package net.vanroy.cloud.dashboard.repository;
 
 import net.vanroy.cloud.dashboard.model.Application;
 import net.vanroy.cloud.dashboard.model.Instance;
-import net.vanroy.cloud.dashboard.model.InstanceHistory;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Application repository interface
+ * @author Julien Roy
  */
 public interface ApplicationRepository {
 
@@ -49,16 +48,4 @@ public interface ApplicationRepository {
      * @return Management URL
      */
     String getInstanceManagementUrl(String id);
-
-    /**
-     * Return list of last registered instance in registry
-     * @return List of 1000 last instance registered
-     */
-    List<InstanceHistory> getRegisteredInstanceHistory();
-
-    /**
-     * Return list of last canceled instance in registry
-     * @return List of 1000 last instance cancelled
-     */
-    List<InstanceHistory> getCanceledInstanceHistory();
 }

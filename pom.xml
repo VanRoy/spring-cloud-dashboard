@@ -18,8 +18,8 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <spring-boot.version>1.2.0.RELEASE</spring-boot.version>
-        <spring-cloud.version>1.0.0.RC1</spring-cloud.version>
+        <spring-boot.version>1.2.1.RELEASE</spring-boot.version>
+        <spring-cloud.version>1.0.0.RC3</spring-cloud.version>
         <bootstrap.version>3.3.1</bootstrap.version>
         <jquery.version>2.1.1</jquery.version>
         <angularjs.version>1.2.27</angularjs.version>
@@ -60,13 +60,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -75,13 +68,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-core</artifactId>
-            <version>${spring-cloud.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-netflix-turbine</artifactId>
-            <version>${spring-cloud.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -109,7 +95,6 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-eureka-server</artifactId>
-            <version>${spring-cloud.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

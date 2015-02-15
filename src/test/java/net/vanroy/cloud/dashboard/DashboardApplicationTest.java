@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import net.vanroy.cloud.dashboard.repository.RegistryRepository;
 import net.vanroy.cloud.dashboard.turbine.MockStreamServlet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,22 +146,29 @@ public class DashboardApplicationTest {
                 public String getInstanceManagementUrl(String id) {
                     return "http://localhost:8761/";
                 }
+            };
+        }
+
+        @Bean
+        public RegistryRepository eurekaRegistryRepository() {
+            
+            return new RegistryRepository() {
 
                 @Override
                 public List<InstanceHistory> getRegisteredInstanceHistory() {
                     return ImmutableList.of(
-                        new InstanceHistory("INSTANCE 1", new Date()),
-                        new InstanceHistory("INSTANCE 2", new Date()),
-                        new InstanceHistory("INSTANCE 3", new Date())
+                            new InstanceHistory("INSTANCE 1", new Date()),
+                            new InstanceHistory("INSTANCE 2", new Date()),
+                            new InstanceHistory("INSTANCE 3", new Date())
                     );
                 }
 
                 @Override
                 public List<InstanceHistory> getCanceledInstanceHistory() {
                     return ImmutableList.of(
-                        new InstanceHistory("CANCELLED INSTANCE 1", new Date()),
-                        new InstanceHistory("CANCELLED INSTANCE 2", new Date()),
-                        new InstanceHistory("CANCELLED INSTANCE 3", new Date())
+                            new InstanceHistory("CANCELLED INSTANCE 1", new Date()),
+                            new InstanceHistory("CANCELLED INSTANCE 2", new Date()),
+                            new InstanceHistory("CANCELLED INSTANCE 3", new Date())
                     );
                 }
             };

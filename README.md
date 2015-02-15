@@ -35,8 +35,9 @@ Add the following dependency to your pom.xml after you have build this project l
 
 Create the Spring Cloud Dashboard with only one single Annotation.
 ```
-@Configuration
-@EnableAutoConfiguration
+@SpringBootApplication
+@EnableEurekaServer
+@EnableDiscoveryClient
 @EnableCloudDashboard
 public class Application {
 	public static void main(String[] args) {

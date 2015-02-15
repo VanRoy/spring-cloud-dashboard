@@ -44,7 +44,7 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   	])
     .factory('InstancesHistory', ['$resource', function($resource) {
    		return $resource(
-   			'api/instances/history', {}, {
+   			'api/registry/history', {}, {
    				query: { method:'GET'}
    			});
    		}

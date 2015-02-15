@@ -22,6 +22,7 @@ import java.io.OutputStream;
 /**
  * Proxy an EventStream request (data.stream via proxy.stream) since EventStream does not yet support CORS (https://bugs.webkit.org/show_bug.cgi?id=61862)
  * so that a UI can request a stream from a different server.
+ * @author Julien Roy
  */
 public class CircuitBreakerStreamServlet extends HttpServlet {
 
