@@ -9,12 +9,38 @@
         <relativePath />
     </parent>
 
-    <groupId>net.vanroy</groupId>
+    <groupId>com.github.vanroy</groupId>
     <artifactId>spring-cloud-dashboard</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0.RELEASE</version>
     <name>Spring Cloud Dashboard</name>
     <description>Spring Cloud Dashboard</description>
-    <url>https://github.com/vanroy/spring-cloud-dashboard/</url>
+    <url>https://github.com/vanroy/spring-cloud-dashboard</url>
+
+    <developers>
+        <developer>
+            <id>vanroy</id>
+            <name>Julien Roy</name>
+            <email>julien.vanroy@gmail.com</email>
+            <url>http://github.com/vanroy</url>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/vanroy/spring-cloud-dashboard/</url>
+        <connection>scm:git:ssh://git@github.com/vanroy/spring-cloud-dashboard.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/vanroy/spring-cloud-dashboard.git</developerConnection>
+    </scm>
 
     <properties>
         <java.version>1.8</java.version>
@@ -30,14 +56,17 @@
         <jolokia-js.version>1.2.2</jolokia-js.version>
         <wro4j.version>1.7.6</wro4j.version>
         <main.basedir>${basedir}</main.basedir>
-    </properties>
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-        </license>
-    </licenses>
+        <!-- Version of maven plugins -->
+        <version.plugin.maven-source-plugin>2.1.2</version.plugin.maven-source-plugin>
+        <version.plugin.maven-javadoc-plugin>2.7</version.plugin.maven-javadoc-plugin>
+        <version.plugin.maven-release-plugin>2.5</version.plugin.maven-release-plugin>
+        <version.plugin.nexus-staging-maven-plugin>1.6.2</version.plugin.nexus-staging-maven-plugin>
+        <version.plugin.maven-gpg-plugin>1.6</version.plugin.maven-gpg-plugin>
+
+        <!-- Source encoding -->
+        <source.encoding>UTF-8</source.encoding>
+    </properties>
 
     <prerequisites>
         <maven>3.0.0</maven>
@@ -103,6 +132,14 @@
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>http://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-release</id>
+            <name>Spring Release</name>
+            <url>http://repo.spring.io/release</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -267,7 +304,105 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${version.plugin.maven-source-plugin}</version>
+                <configuration>
+                    <encoding>${source.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${version.plugin.maven-release-plugin}</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${version.plugin.maven-javadoc-plugin}</version>
+            </plugin>
+            <!-- Nexus Staging Maven Plugin for Deployment and Release into Sonatype OSSRH -->
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${version.plugin.nexus-staging-maven-plugin}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
+    <!-- Deploy snapshots to the Sonatype OSSRH (OSS Repository Hosting) -->
+    <distributionManagement>
+        <downloadUrl>https://github.com/vanroy/spring-cloud-dashboard</downloadUrl>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <!-- Specific profile for release or artifact deployment -->
+            <!-- Sources et javadoc are packaged -->
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.plugin.maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

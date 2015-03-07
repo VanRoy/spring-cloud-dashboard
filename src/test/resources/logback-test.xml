@@ -4,6 +4,6 @@
 	<include resource="org/springframework/boot/logging/logback/base.xml"/>
 
 	<jmxConfigurator/>
-	<logger name="net.vanroy" level="DEBUG" />
+	<logger name="com.github.vanroy" level="DEBUG" />
 
 </configuration>
