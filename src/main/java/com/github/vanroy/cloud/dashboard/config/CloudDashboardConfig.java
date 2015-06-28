@@ -16,6 +16,7 @@
 package com.github.vanroy.cloud.dashboard.config;
 
 import com.github.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import com.github.vanroy.cloud.dashboard.repository.aws.BeanstalkRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.LocaleEurekaRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.RemoteEurekaRepository;
 import com.github.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
@@ -41,19 +42,26 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan("com.github.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
-    @Bean
+    @Bean(name="applicationRepository")
     @ConditionalOnClass(name="com.netflix.eureka.PeerAwareInstanceRegistry")
     @ConditionalOnMissingBean(ApplicationRepository.class)
     public ApplicationRepository eurekaRepository() {
         return new LocaleEurekaRepository();
     }
 
-    @Bean
+    @Bean(name="applicationRepository")
     @ConditionalOnMissingClass(name="com.netflix.eureka.PeerAwareInstanceRegistry")
     @ConditionalOnClass(name="com.netflix.discovery.DiscoveryClient")
     @ConditionalOnMissingBean(ApplicationRepository.class)
     public ApplicationRepository remoteEurekaRepository() {
         return new RemoteEurekaRepository();
+    }
+
+    @Bean(name="applicationRepository")
+    @ConditionalOnClass(name="com.amazonaws.services.elasticbeanstalk.AWSElasticBeanstalkClient")
+    @ConditionalOnMissingBean(ApplicationRepository.class)
+    public ApplicationRepository beanstalkRepository() {
+        return new BeanstalkRepository();
     }
 
     @Bean

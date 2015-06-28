@@ -11,7 +11,7 @@
 
     <groupId>com.github.vanroy</groupId>
     <artifactId>spring-cloud-dashboard</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Spring Cloud Dashboard</name>
     <description>Spring Cloud Dashboard</description>
     <url>https://github.com/vanroy/spring-cloud-dashboard</url>
@@ -45,6 +45,7 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>1.0.0.RELEASE</spring-cloud.version>
+        <aws-sdk.version>1.9.0</aws-sdk.version>
         <bootstrap.version>3.3.1</bootstrap.version>
         <jquery.version>2.1.1</jquery.version>
         <angularjs.version>1.2.27</angularjs.version>
@@ -102,6 +103,18 @@
             <groupId>com.netflix.eureka</groupId>
             <artifactId>eureka-core</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-elasticbeanstalk</artifactId>
+            <scope>provided</scope>
+            <version>${aws-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-ec2</artifactId>
+            <scope>provided</scope>
+            <version>${aws-sdk.version}</version>
         </dependency>
         <!-- Test -->
         <dependency>

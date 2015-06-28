@@ -66,10 +66,10 @@ public class ApplicationController {
    	}
 
 	/**
-	 * Get a single application.
+	 * Get a single instance.
 	 * 
-	 * @param id The application identifier.
-	 * @return The application.
+	 * @param id The instance identifier.
+	 * @return The instance.
 	 */
 	@RequestMapping(value = "/api/instance/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Instance> instance(@PathVariable String id) {
