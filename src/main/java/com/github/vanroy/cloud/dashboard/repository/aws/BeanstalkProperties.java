@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("spring.cloud.dashboard.beanstalk")
 public class BeanstalkProperties {
 
+    private String endpoint = "https://elasticbeanstalk.us-east-1.amazonaws.com";
     private String environment;
     private Instance instances = new Instance();
 
@@ -28,6 +29,14 @@ public class BeanstalkProperties {
 
     public void setInstances(Instance instances) {
         this.instances = instances;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     public static class Instance {

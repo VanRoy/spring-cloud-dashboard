@@ -11,23 +11,27 @@ import com.amazonaws.services.elasticbeanstalk.model.*;
 import com.github.vanroy.cloud.dashboard.model.Application;
 import com.github.vanroy.cloud.dashboard.model.Instance;
 import com.github.vanroy.cloud.dashboard.repository.ApplicationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
 /**
  * Amazon Web Service Beanstalk registry implementation of application repository
  * @author Julien Roy
  */
-//@Configuration
 @EnableConfigurationProperties({BeanstalkProperties.class})
 public class BeanstalkRepository implements ApplicationRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BeanstalkRepository.class);
 
     private final AmazonEC2Client ec2;
     private final AWSElasticBeanstalkClient beanstalk;
@@ -41,10 +45,19 @@ public class BeanstalkRepository implements ApplicationRepository {
         this.ec2 = new AmazonEC2Client(credentials);
     }
 
+    @PostConstruct
+    public void init() {
+        this.beanstalk.setEndpoint(properties.getEndpoint());
+    }
+
     @Override
     public Collection<Application> findAll() {
-        return beanstalk.describeApplications()
-            .getApplications().stream()
+
+        DescribeApplicationsResult result = beanstalk.describeApplications();
+
+        LOGGER.info("Find applications : {}", result.getApplications().size());
+
+        return result.getApplications().stream()
             .map(TO_APPLICATION)
             .collect(Collectors.toList());
     }
@@ -89,17 +102,17 @@ public class BeanstalkRepository implements ApplicationRepository {
 
         DescribeEnvironmentsRequest envRequest = new DescribeEnvironmentsRequest().withApplicationName(appName);
 
-        if( !StringUtils.isEmpty(properties.getEnvironment()) ) {
-            envRequest.withEnvironmentNames(properties.getEnvironment());
-        }
-
         List<EnvironmentDescription> environments = beanstalk.describeEnvironments(envRequest).getEnvironments();
-        if( environments == null || environments.isEmpty()) {
+        if (environments == null || environments.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
 
-        EnvironmentDescription environment = environments.get(0);
-        EnvironmentResourceDescription resources = beanstalk.describeEnvironmentResources(new DescribeEnvironmentResourcesRequest().withEnvironmentName(environment.getEnvironmentName())).getEnvironmentResources();
+        Optional<EnvironmentDescription> environment = environments.stream().filter(e -> e.getEnvironmentName().matches(properties.getEnvironment())).findFirst();
+        if (!environment.isPresent()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        EnvironmentResourceDescription resources = beanstalk.describeEnvironmentResources(new DescribeEnvironmentResourcesRequest().withEnvironmentName(environment.get().getEnvironmentName())).getEnvironmentResources();
         return resources.getInstances().stream().map(instance -> new Instance("", instance.getId(), instance.getId(), getInstanceStatus(instance.getId()))).collect(Collectors.toList());
     }
 
