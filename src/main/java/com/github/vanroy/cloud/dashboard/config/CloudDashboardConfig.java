@@ -74,11 +74,11 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
     public HttpClient HttpClient() {
         return HttpClients.custom()
                 .setMaxConnTotal(100)
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(2000).build())
+                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(5000).build())
                 .setDefaultRequestConfig(RequestConfig.custom()
-                    .setSocketTimeout(2000)
-                    .setConnectTimeout(1000)
-                    .setConnectionRequestTimeout(1000).build())
+                    .setSocketTimeout(10000)
+                    .setConnectTimeout(2000)
+                    .setConnectionRequestTimeout(2000).build())
                 .build();
     }
 }
