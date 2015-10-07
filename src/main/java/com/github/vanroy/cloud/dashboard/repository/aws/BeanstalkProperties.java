@@ -42,6 +42,7 @@ public class BeanstalkProperties {
     public static class Instance {
 
         private Management management = new Management();
+        private String endpoint = "https://ec2.us-east-1.amazonaws.com";
 
         public Management getManagement() {
             return management;
@@ -49,6 +50,14 @@ public class BeanstalkProperties {
 
         public void setManagement(Management management) {
             this.management = management;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
         }
     }
 
