@@ -6,56 +6,60 @@
 <script type="text/javascript" src="js/circuit-breaker-command.js"></script>
 <script type="text/javascript" src="js/circuit-breaker-threadpool.js"></script>
 
-<h2 style="display: inline-block;">
-    Circuit breakers status
-    <small>{{ subtitle }}</small>
-</h2>
+<div class="container-fluid content">
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        Commands
+    <h2 style="display: inline-block;">
+        Circuit breakers status
+        <small>{{ subtitle }}</small>
+    </h2>
 
-        <div class="pull-right btn-group" dropdown>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Commands
 
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle" dropdown-toggle>Sort <span class="caret"></span></button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="" ng-click="hystrixMonitor.sortByErrorThenVolume();">Error then Volume</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortAlphabetically();">Alphabetical</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByVolume();">Volume</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByError();">Error</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByLatencyMean();">Mean</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByLatencyMedian();">Median</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByLatency90();">90</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByLatency99();">99</a></li>
-                <li><a href="" ng-click="hystrixMonitor.sortByLatency995();">99.5</a></li>
-            </ul>
+            <div class="pull-right btn-group" dropdown>
+
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" dropdown-toggle>Sort <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="" ng-click="hystrixMonitor.sortByErrorThenVolume();">Error then Volume</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortAlphabetically();">Alphabetical</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByVolume();">Volume</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByError();">Error</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByLatencyMean();">Mean</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByLatencyMedian();">Median</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByLatency90();">90</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByLatency99();">99</a></li>
+                    <li><a href="" ng-click="hystrixMonitor.sortByLatency995();">99.5</a></li>
+                </ul>
+            </div>
+
+            <div class="pull-right">
+                <div class="menu_legend">
+                    <span class="success">Success</span> | <span class="shortCircuited">Short-Circuited</span> | <span class="timeout">Timeout</span> | <span class="rejected">Rejected</span> | <span class="failure">Failure</span> | <span class="errorPercentage">Error %</span>
+                </div>
+            </div>
+
         </div>
+        <div class="panel-body">
+            <div id="dependencies" class="row-centered dependencies"><span class="loading">Loading ...</span></div>
+        </div>
+    </div>
 
-        <div class="pull-right">
-            <div class="menu_legend">
-                <span class="success">Success</span> | <span class="shortCircuited">Short-Circuited</span> | <span class="timeout">Timeout</span> | <span class="rejected">Rejected</span> | <span class="failure">Failure</span> | <span class="errorPercentage">Error %</span>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Thread pools
+
+            <div class="pull-right btn-group" dropdown>
+                <button type="button" class="btn btn-default btn-xs dropdown-toggle" dropdown-toggle>Sort <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="" ng-click="dependencyThreadPoolMonitor.sortAlphabetically();">Alphabetical</a></li>
+                    <li><a href="" ng-click="dependencyThreadPoolMonitor.sortByVolume();">Volume</a></li>
+                </ul>
             </div>
         </div>
-
-    </div>
-    <div class="panel-body">
-        <div id="dependencies" class="row-centered dependencies"><span class="loading">Loading ...</span></div>
-    </div>
-</div>
-
-<div class="panel panel-default">
-    <div class="panel-heading">
-        Thread pools
-
-        <div class="pull-right btn-group" dropdown>
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle" dropdown-toggle>Sort <span class="caret"></span></button>
-            <ul class="dropdown-menu" role="menu">
-                <li><a href="" ng-click="dependencyThreadPoolMonitor.sortAlphabetically();">Alphabetical</a></li>
-                <li><a href="" ng-click="dependencyThreadPoolMonitor.sortByVolume();">Volume</a></li>
-            </ul>
+        <div class="panel-body">
+            <div id="dependencyThreadPools" class="row-centered dependencyThreadPools"><span class="loading">Loading ...</span></div>
         </div>
     </div>
-    <div class="panel-body">
-        <div id="dependencyThreadPools" class="row-centered dependencyThreadPools"><span class="loading">Loading ...</span></div>
-    </div>
+
 </div>

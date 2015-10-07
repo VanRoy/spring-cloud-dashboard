@@ -17,9 +17,11 @@
     <js minimize="false">webjar:angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives.js</js>
     <js minimize="false">webjar:jolokia.js/${jolokia-js.version}/jolokia.js</js>
     <js minimize="true">/scripts/app.js</js>
+    <js minimize="true">/scripts/filters/filters.js</js>
     <js minimize="true">/scripts/controllers/controllers.js</js>
     <js minimize="true">/scripts/controllers/circuit-breaker.js</js>
     <js minimize="true">/scripts/services/services.js</js>
-    <js minimize="true">/scripts/filters/filters.js</js>
+    <js minimize="true">/scripts/directives/richMetricBar.js</js>
+    <js minimize="true">/scripts/directives/simpleMetricBar.js</js>
   </group>
 </groups>

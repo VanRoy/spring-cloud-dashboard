@@ -25,11 +25,11 @@ angular.module('springCloudDashboard', [
 ])
   	.config(function ($stateProvider, $urlRouterProvider) {
   		$urlRouterProvider
-  			.when('/', '/overview')
+  			.when('/', '/app')
   			.otherwise('/');
   		$stateProvider
 	  		.state('overview', {
-	  			url: '/overview',
+	  			url: '/app',
 	  			templateUrl: 'views/overview.html',
 	  			controller: 'overviewCtrl'
 	  		})
@@ -44,12 +44,12 @@ angular.module('springCloudDashboard', [
   			})
   			.state('apps', {
   				abstract:true,
-  				url: '/apps/:id',
+  				url: '/app/:appId/instance/:instanceId',
   				controller: 'appsCtrl',
   				templateUrl: 'views/apps.html',
   				resolve: {
-  			      instance: ['$stateParams', 'Instance' , function($stateParams, Instance){
-  			          return Instance.query({id: $stateParams.id}).$promise;
+  			      instance: ['$stateParams', 'Instance' , function($stateParams, Instance) {
+  			          return Instance.query({id: $stateParams.instanceId}).$promise;
   			      }]
   			   }
   			})
@@ -73,21 +73,16 @@ angular.module('springCloudDashboard', [
   				templateUrl: 'views/apps/details/metrics.html',
   				controller: 'detailsMetricsCtrl'
   			})
-  			.state('apps.details.env', {
-  				url: '/env',
-  				templateUrl: 'views/apps/details/env.html',
-  				controller: 'detailsEnvCtrl'
-  			})
-  			.state('apps.details.props', {
-  				url: '/props',
-  				templateUrl: 'views/apps/details/props.html',
-  				controller: 'detailsPropsCtrl'
-  			})
   			.state('apps.details.classpath', {
   				url: '/classpath',
   				templateUrl: 'views/apps/details/classpath.html',
   				controller: 'detailsClasspathCtrl'
   			})
+			.state('apps.env', {
+				url: '/env',
+				templateUrl: 'views/apps/environment.html',
+				controller: 'environmentCtrl'
+			})
   			.state('apps.logging', {
   				url: '/logging',
   				templateUrl: 'views/apps/logging.html',
@@ -102,7 +97,12 @@ angular.module('springCloudDashboard', [
   				url: '/threads',
   				templateUrl: 'views/apps/threads.html',
   				controller: 'threadsCtrl'
-  			});    			
+  			})
+			.state('apps.trace', {
+				url: '/trace',
+				templateUrl: 'views/apps/trace.html',
+				controller: 'traceCtrl'
+			});
   	})
   	.run(function ($rootScope, $state, $stateParams, $log) {
   		$rootScope.$state = $state;

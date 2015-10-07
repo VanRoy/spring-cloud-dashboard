@@ -23,7 +23,6 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   			});
   		}
   	])
-
 	.service('ApplicationOverview', ['$http', function($http) {
 		this.getCircuitBreakerInfo = function(application) {
 			return $http.head('/circuitBreaker.stream', {
@@ -35,10 +34,17 @@ angular.module('springCloudDashboard.services', ['ngResource'])
 			});
 		};
 	}])
-  	.factory('Instance', ['$resource', function($resource) {
+  	.factory('Instance', ['$resource', 'InstanceDetails', function($resource, InstanceDetails) {
   		return $resource(
   			'api/instance/:id', {}, {
-  				query: { method:'GET'}
+  				query: {
+					method:'GET',
+					transformResponse: function(data) {
+						var instance = angular.fromJson(data);
+						InstanceDetails.getCapabilities(instance);
+						return instance;
+					}
+				}
   			});
   		}
   	])
@@ -52,9 +58,9 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   	.service('InstanceOverview', ['$http', function($http) {
   		this.getInfo = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/info/').success(function(response) {
-  				instance.version = response.version;
-  				delete response.version;
-  				instance.info = response;
+				var appInfo = response.app || response;
+				instance.version = appInfo.version;
+  				instance.info = appInfo;
   			}).error(function() {
   				instance.version = '---';
   			});
@@ -74,18 +80,52 @@ angular.module('springCloudDashboard.services', ['ngResource'])
   		};
   	}])
   	.service('InstanceDetails', ['$http', function($http) {
+
+		var _this = this;
+		this.isEndpointPresent = function(endpoint, configprops) {
+			return !!configprops[endpoint];
+		};
+
+		this.getCapabilities = function(instance) {
+			instance.capabilities = {};
+
+			$http.get('api/instance/' + instance.id + '/configprops').success(function(configprops) {
+				instance.capabilities.logfile = _this .isEndpointPresent('logfileEndpoint', configprops);
+				instance.capabilities.restart = _this .isEndpointPresent('restartEndpoint', configprops);
+				instance.capabilities.refresh = _this .isEndpointPresent('refreshEndpoint', configprops);
+				instance.capabilities.pause = _this .isEndpointPresent('pauseEndpoint', configprops);
+				instance.capabilities.resume = _this .isEndpointPresent('resumeEndpoint', configprops);
+			});
+		};
+
   		this.getInfo = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/info/');
   		};
   		this.getMetrics = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/metrics/');
   		};
-  		this.getEnv = function(instance) {
-  			return $http.get('api/instance/'+ instance.id + '/env/');
-  		};
+		this.getEnv = function (instance, key) {
+			if(key) {
+				return $http.get('api/instance/' + instance.id + '/env' + (key ? '/' + key : '' ));
+			} else {
+				return $http.get('api/instance/'+ instance.id + '/env/');
+			}
+		};
+		this.setEnv = function (instance, map) {
+			return $http.post('api/instance/' + instance.id + '/env', '', {params: map});
+		};
+		this.resetEnv = function (instance) {
+			return $http.post('api/instance/' + instance.id + '/env/reset');
+		};
+		this.refresh = function (instance) {
+			return $http.post('api/instance/' + instance.id + '/refresh');
+		};
   		this.getHealth = function(instance) {
   			return $http.get('api/instance/'+ instance.id + '/health/');
   		};
+		this.getTraces = function (instance) {
+			return $http.get('api/instance/' + instance.id + '/trace');
+		};
 		this.getCircuitBreakerInfo = function(instance) {
 			return $http.head('/circuitBreaker.stream', {
 				params: {instanceId: instance.id}

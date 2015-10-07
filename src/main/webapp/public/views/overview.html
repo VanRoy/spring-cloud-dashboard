@@ -1,25 +1,31 @@
-<h2 >Spring Cloud Dashboard<br>
-    <small>Here you'll find all Spring Cloud applications that registered on the registry.</small>
-</h2>
+<div class="container-fluid content">
+    <h2 >Spring Cloud Dashboard<br>
+        <small>Here you'll find all Spring Cloud applications that registered on the registry.</small>
+    </h2>
 
-<div class="row">
-    <div class="col-md-4">
-
-        <tabset class="tabs-inverse" vertical="true" type="pills">
-            <tab ui-sref="overview.select({id: application.name})" ng-repeat="application in applications track by application.name" active="application.active">
-                <tab-heading>
-                    <strong>{{application.name}}</strong>
-                    <div class="pull-right">
-                        <span class="label label-{{application.badge}}">{{ application.instanceUp }} / {{ application.instanceCount }}</span>
-                    </div>
-                </tab-heading>
-            </tab>
-        </tabset>
-
+    <div class="main-loader-mask" ng-show="loading">
+        <div class="loading-big"></div>
     </div>
 
-    <div ui-view>
+    <div class="row">
+        <div class="col-md-4">
+
+            <tabset class="tabs-inverse" vertical="true" type="pills">
+                <tab ui-sref="overview.select({id: application.name})" ng-repeat="application in applications track by application.name" active="application.active">
+                    <tab-heading>
+                        <strong>{{application.name}}</strong>
+                        <div class="pull-right">
+                            <span class="label label-{{application.badge}}">{{ application.instanceUp }} / {{ application.instanceCount }}</span>
+                        </div>
+                    </tab-heading>
+                </tab>
+            </tabset>
+
+        </div>
+
+        <div ui-view>
+
+        </div>
 
     </div>
-
 </div>

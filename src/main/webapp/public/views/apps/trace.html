@@ -1,0 +1,31 @@
+<div class="container content">
+	<div class="alert alert-danger" ng-if="error">
+		<b>Error:</b> {{ error }}
+	</div>
+	<div class="form-inline">
+		<div class="input-group">
+			<span class="input-group-btn">
+				<button title="refresh" class="btn btn-default" ng-click="refresh()"><i class="glyphicon glyphicon-refresh"></i></button>
+			</span>
+			<span class="input-group-btn">
+				<button class="btn btn-default" title="auto refresh" ng-click="toggleAutoRefresh()" ng-class="{'active':refresher != null}"><i class="glyphicon" ng-class="{'glyphicon-play':refresher == null, 'glyphicon-pause':refresher != null}"></i></button>
+			</span>
+
+			<input class="input-mini form-control" type="number" min="1" ng-model="refreshInterval" ng-disabled="refresher != null"/>
+			<span class="input-group-addon">sec</span>
+		</div>
+	</div>
+	<ul class="timeline">
+		<li ng-repeat="trace in traces | orderBy:'timestamp':true" >
+			<div class="event" ng-click="trace.show = !trace.show">
+				<div class="time">
+					{{trace.timestamp | date:'HH:mm:ss.sss'}}
+					<small class="muted">{{trace.timestamp | date:'dd.MM.yyyy'}}</small><br/>
+				</div>
+				<div class="title"><span class="muted">{{trace.info.method}}</span> {{trace.info.path}}</div>
+				<pre class="content" ng-show="trace.show">{{trace.info | json}}</pre>
+			</div>
+		</li>
+	</ul>
+</div>
+
