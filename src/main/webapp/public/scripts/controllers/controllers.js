@@ -100,7 +100,7 @@ angular.module('springCloudDashboard')
 		// reload site every 30 seconds
 		$interval(function() {
 			$scope.loadData();
-		}, 30000);
+		}, 60000);
   	}])
 	.controller('overviewSelectedCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams','Applications', 'InstanceOverview', 'Instance',
 	function ($scope, $location, $interval, $q, $stateParams) {
