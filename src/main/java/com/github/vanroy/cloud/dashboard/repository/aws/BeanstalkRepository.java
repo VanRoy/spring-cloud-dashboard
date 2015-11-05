@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
+import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstanceStatusRequest;
@@ -38,6 +43,7 @@ import com.github.vanroy.cloud.dashboard.model.Instance;
 import com.github.vanroy.cloud.dashboard.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 /**
  * Amazon Web Service Beanstalk registry implementation of application repository
@@ -63,8 +69,8 @@ public class BeanstalkRepository implements ApplicationRepository {
             });
 
     private final LoadingCache<String, AmazonEC2> amazonEC2 = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(
+        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .build(
                 new CacheLoader<String, AmazonEC2>() {
                     @Override
                     public AmazonEC2 load(@Nullable String endpoint) throws Exception {
@@ -74,6 +80,21 @@ public class BeanstalkRepository implements ApplicationRepository {
                         ec2.setEndpoint(properties.getInstances().getEndpoint());
 
                         return ec2;
+                    }
+                });
+
+    private final LoadingCache<String, DescribeStacksResult> cloudformationStacks = CacheBuilder.newBuilder()
+        .expireAfterWrite(5, TimeUnit.MINUTES)
+        .build(
+                new CacheLoader<String, DescribeStacksResult>() {
+                    @Override
+                    public DescribeStacksResult load(@Nullable String endpoint) throws Exception {
+
+                        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+                        AmazonCloudFormation cf = new AmazonCloudFormationClient(credentials);
+                        cf.setEndpoint(properties.getCloudFormation().getEndpoint());
+
+                        return cf.describeStacks();
                     }
                 });
 
@@ -115,11 +136,19 @@ public class BeanstalkRepository implements ApplicationRepository {
     }
 
     private AmazonEC2 getEC2() {
-
         try {
             return amazonEC2.get("");
         } catch (ExecutionException e) {
             LOGGER.error("Connot retreive EC2 client", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<Stack> getStacks() {
+        try {
+            return cloudformationStacks.get("").getStacks();
+        } catch (ExecutionException e) {
+            LOGGER.error("Connot retreive Cloudformation stacks", e);
             throw new RuntimeException(e);
         }
     }
@@ -183,12 +212,48 @@ public class BeanstalkRepository implements ApplicationRepository {
             return Collections.EMPTY_LIST;
         }
 
-        Optional<EnvironmentDescription> environment = environments.stream().filter(e -> e.getEnvironmentName().matches(properties.getEnvironment())).findFirst();
-        if (!environment.isPresent()) {
-            return Collections.EMPTY_LIST;
+        DescribeEnvironmentResourcesRequest request = new DescribeEnvironmentResourcesRequest();
+
+        if(StringUtils.hasText(properties.getEnvironment())) {
+            Optional<EnvironmentDescription> environment = environments.stream().filter(e -> e.getEnvironmentName().matches(properties.getEnvironment())).findFirst();
+            if (!environment.isPresent()) {
+                return Collections.EMPTY_LIST;
+            }
+
+            request.withEnvironmentName(environment.get().getEnvironmentName());
         }
 
-        EnvironmentResourceDescription resources = getBeanstalk().describeEnvironmentResources(new DescribeEnvironmentResourcesRequest().withEnvironmentName(environment.get().getEnvironmentName())).getEnvironmentResources();
+        if(properties.getEnvironmentTags() != null && !properties.getEnvironmentTags().isEmpty()) {
+
+            List<String> environmentIds = environments.stream().map(EnvironmentDescription::getEnvironmentId).collect(Collectors.toList());
+
+            Optional<String> oEnvironmentId = getStacks().stream()
+                    .map(Stack::getTags)
+                    .map(tags -> tags.stream().collect(Collectors.toMap(com.amazonaws.services.cloudformation.model.Tag::getKey, com.amazonaws.services.cloudformation.model.Tag::getValue)))
+                    .filter(tags -> {
+
+                        for (Map.Entry<String, String> entry : properties.getEnvironmentTags().entrySet()) {
+                            //Check value with existing stack tags
+                            if (!entry.getValue().equalsIgnoreCase(tags.get(entry.getKey()))) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+
+                    })
+                    .map(tags -> tags.get("elasticbeanstalk:environment-id"))
+                    .filter(environmentIds::contains)
+                    .findFirst();
+
+            if (!oEnvironmentId.isPresent()) {
+                return Collections.EMPTY_LIST;
+            }
+
+            request.withEnvironmentId(oEnvironmentId.get());
+        }
+
+        EnvironmentResourceDescription resources = getBeanstalk().describeEnvironmentResources(request).getEnvironmentResources();
         return resources.getInstances().stream().map(instance -> new Instance("", instance.getId(), instance.getId(), getInstanceStatus(instance.getId()))).collect(Collectors.toList());
     }
 

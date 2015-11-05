@@ -1,5 +1,7 @@
 package com.github.vanroy.cloud.dashboard.repository.aws;
 
+import java.util.Map;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +14,12 @@ import org.springframework.stereotype.Component;
 public class BeanstalkProperties {
 
     private String endpoint = "https://elasticbeanstalk.us-east-1.amazonaws.com";
+
     private String environment;
+    private Map<String, String> environmentTags;
+
+    private CloudFormation cloudFormation = new CloudFormation();
+
     private Instance instances = new Instance();
 
     public String getEnvironment() {
@@ -37,6 +44,22 @@ public class BeanstalkProperties {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public Map<String, String> getEnvironmentTags() {
+        return environmentTags;
+    }
+
+    public void setEnvironmentTags(Map<String, String> environmentTags) {
+        this.environmentTags = environmentTags;
+    }
+
+    public CloudFormation getCloudFormation() {
+        return cloudFormation;
+    }
+
+    public void setCloudFormation(CloudFormation cloudFormation) {
+        this.cloudFormation = cloudFormation;
     }
 
     public static class Instance {
@@ -89,6 +112,19 @@ public class BeanstalkProperties {
 
         public void setPath(String path) {
             this.path = path;
+        }
+    }
+
+    public static class CloudFormation {
+
+        private String endpoint = "https://cloudformation.us-east-1.amazonaws.com";
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
         }
     }
 
