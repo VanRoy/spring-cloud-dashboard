@@ -1,5 +1,6 @@
 package com.github.vanroy.cloud.dashboard.repository.aws;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.cloudformation.AmazonCloudFormation;
 import com.amazonaws.services.cloudformation.AmazonCloudFormationClient;
+import com.amazonaws.services.cloudformation.model.DescribeStacksRequest;
 import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
 import com.amazonaws.services.cloudformation.model.Stack;
 import com.amazonaws.services.ec2.AmazonEC2;
@@ -83,18 +85,31 @@ public class BeanstalkRepository implements ApplicationRepository {
                     }
                 });
 
-    private final LoadingCache<String, DescribeStacksResult> cloudformationStacks = CacheBuilder.newBuilder()
+    private final LoadingCache<String, List<Stack>> cloudformationStacks = CacheBuilder.newBuilder()
         .expireAfterWrite(5, TimeUnit.MINUTES)
         .build(
-                new CacheLoader<String, DescribeStacksResult>() {
+                new CacheLoader<String, List<Stack>>() {
                     @Override
-                    public DescribeStacksResult load(@Nullable String endpoint) throws Exception {
+                    public List<Stack> load(@Nullable String endpoint) throws Exception {
 
                         AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
                         AmazonCloudFormation cf = new AmazonCloudFormationClient(credentials);
                         cf.setEndpoint(properties.getCloudFormation().getEndpoint());
 
-                        return cf.describeStacks();
+                        List<Stack> stacks = new ArrayList<>();
+                        DescribeStacksResult stacksResults = cf.describeStacks();
+                        stacks.addAll(stacksResults.getStacks());
+
+                        for (int i=0 ; i<100 ; i++) {
+                            if(stacksResults.getNextToken() == null) {
+                                return stacks;
+                            } else {
+                                stacksResults = cf.describeStacks(new DescribeStacksRequest().withNextToken(stacksResults.getNextToken()));
+                                stacks.addAll(stacksResults.getStacks());
+                            }
+                        }
+
+                        return stacks;
                     }
                 });
 
@@ -146,7 +161,7 @@ public class BeanstalkRepository implements ApplicationRepository {
 
     private List<Stack> getStacks() {
         try {
-            return cloudformationStacks.get("").getStacks();
+            return cloudformationStacks.get("");
         } catch (ExecutionException e) {
             LOGGER.error("Connot retreive Cloudformation stacks", e);
             throw new RuntimeException(e);
