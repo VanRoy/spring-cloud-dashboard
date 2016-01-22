@@ -55,7 +55,7 @@ public class ApplicationController {
    	 *
    	 * @return List.
    	 */
-   	@RequestMapping(value = "/api/applications", method = RequestMethod.GET)
+   	@RequestMapping(value = "/api/applications", method = RequestMethod.GET, produces = "application/json")
    	public Collection<Application> applications(@RequestParam(value = "name", required = false) String name) {
    		LOGGER.debug("Deliver applications with name= {}", name);
    		if (name == null || name.isEmpty()) {
@@ -71,7 +71,7 @@ public class ApplicationController {
 	 * @param id The application identifier.
 	 * @return The application.
 	 */
-	@RequestMapping(value = "/api/instance/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/api/instance/{id}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Instance> instance(@PathVariable String id) {
 		LOGGER.debug("Deliver application with ID '{}'", id);
 		Instance instance = repository.findInstance(id);

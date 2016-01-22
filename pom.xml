@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.2.2.RELEASE</version>
+        <version>1.3.1.RELEASE</version>
         <relativePath />
     </parent>
 
     <groupId>com.github.vanroy</groupId>
     <artifactId>spring-cloud-dashboard</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.1.0-SNAPSHOT</version>
     <name>Spring Cloud Dashboard</name>
     <description>Spring Cloud Dashboard</description>
     <url>https://github.com/vanroy/spring-cloud-dashboard</url>
@@ -44,7 +44,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <spring-cloud.version>1.0.0.RELEASE</spring-cloud.version>
+        <spring-cloud.version>1.1.0.M4</spring-cloud.version>
         <bootstrap.version>3.3.1</bootstrap.version>
         <jquery.version>2.1.1</jquery.version>
         <angularjs.version>1.2.27</angularjs.version>
@@ -54,7 +54,7 @@
         <d3js.version>3.4.11</d3js.version>
         <nvd3.version>1.1.15-beta</nvd3.version>
         <jolokia-js.version>1.2.2</jolokia-js.version>
-        <wro4j.version>1.7.6</wro4j.version>
+        <wro4j.version>1.7.9</wro4j.version>
         <main.basedir>${basedir}</main.basedir>
 
         <!-- Version of maven plugins -->

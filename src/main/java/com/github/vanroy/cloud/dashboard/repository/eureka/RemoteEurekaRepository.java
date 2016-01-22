@@ -3,6 +3,7 @@ package com.github.vanroy.cloud.dashboard.repository.eureka;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryManager;
 import com.github.vanroy.cloud.dashboard.model.Application;
+import com.netflix.discovery.EurekaClient;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -13,20 +14,26 @@ import java.util.stream.Collectors;
  */
 public class RemoteEurekaRepository extends EurekaRepository {
 
+    private final EurekaClient eurekaClient;
+
+    public RemoteEurekaRepository(EurekaClient eurekaClient) {
+        this.eurekaClient = eurekaClient;
+    }
+
     @Override
     public Collection<Application> findAll() {
-        return DiscoveryManager.getInstance().getDiscoveryClient().getApplications().getRegisteredApplications().stream()
+        return eurekaClient.getApplications().getRegisteredApplications().stream()
             .map(TO_APPLICATION)
             .collect(Collectors.toList());
     }
 
     @Override
     public Application findByName(String name) {
-        return TO_APPLICATION.apply(DiscoveryManager.getInstance().getDiscoveryClient().getApplications().getRegisteredApplications(name));
+        return TO_APPLICATION.apply(eurekaClient.getApplications().getRegisteredApplications(name));
     }
 
     protected InstanceInfo findInstanceInfo(String id) {
         String[] instanceIds = id.split("_", 2);
-        return DiscoveryManager.getInstance().getDiscoveryClient().getApplication(instanceIds[0]).getByInstanceId(instanceIds[1].replaceAll("_", "."));
+        return eurekaClient.getApplication(instanceIds[0]).getByInstanceId(instanceIds[1].replaceAll("_", "."));
     }
 }
