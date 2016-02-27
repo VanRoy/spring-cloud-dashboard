@@ -63,3 +63,6 @@ Samples are available in this repository : https://github.com/VanRoy/spring-clou
 ##### Registry history:
 [](url "title")
 <img src="https://raw.githubusercontent.com/vanroy/spring-cloud-dashboard/master/screenshot-history.png">
+
+### Custom CSS:
+Add a style sheet to your project and configure its classpath location with the property `eureka.clientdashboard.customCssPath`.
