@@ -20,11 +20,14 @@ import com.github.vanroy.cloud.dashboard.repository.aws.BeanstalkRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.LocaleEurekaRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.RemoteEurekaRepository;
 import com.github.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -42,19 +45,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @ComponentScan("com.github.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
-    @Bean(name="applicationRepository")
-    @ConditionalOnClass(name="com.netflix.eureka.PeerAwareInstanceRegistry")
+    @ConditionalOnClass(name = "com.netflix.eureka.registry.PeerAwareInstanceRegistry")
     @ConditionalOnMissingBean(ApplicationRepository.class)
-    public ApplicationRepository eurekaRepository() {
-        return new LocaleEurekaRepository();
+    public static class LocalEureka {
+
+        @Bean(name="applicationRepository")
+        public ApplicationRepository eurekaRepository(PeerAwareInstanceRegistry peerAwareInstanceRegistry) {
+            return new LocaleEurekaRepository(peerAwareInstanceRegistry);
+        }
     }
 
-    @Bean(name="applicationRepository")
-    @ConditionalOnMissingClass(name="com.netflix.eureka.PeerAwareInstanceRegistry")
-    @ConditionalOnClass(name="com.netflix.discovery.DiscoveryClient")
+    @ConditionalOnMissingClass(name = "com.netflix.eureka.registry.PeerAwareInstanceRegistry")
+    @ConditionalOnClass(name = "com.netflix.discovery.EurekaClient")
     @ConditionalOnMissingBean(ApplicationRepository.class)
-    public ApplicationRepository remoteEurekaRepository() {
-        return new RemoteEurekaRepository();
+    public static class RemoteEureka {
+
+        @Bean(name="applicationRepository")
+        public ApplicationRepository remoteEurekaRepository(EurekaClient eurekaClient) {
+            return new RemoteEurekaRepository(eurekaClient);
+        }
     }
 
     @Bean(name="applicationRepository")
