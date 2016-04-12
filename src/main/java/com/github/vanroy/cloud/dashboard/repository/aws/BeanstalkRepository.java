@@ -7,14 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +39,7 @@ import com.github.vanroy.cloud.dashboard.model.Instance;
 import com.github.vanroy.cloud.dashboard.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -56,116 +51,10 @@ public class BeanstalkRepository implements ApplicationRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanstalkRepository.class);
 
-    private final LoadingCache<String, AWSElasticBeanstalk> awsElasticBeanstalk = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .build(
-            new CacheLoader<String, AWSElasticBeanstalk>() {
-                @Override
-                public AWSElasticBeanstalk load(@Nullable String endpoint) throws Exception {
-
-                    AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
-                    AWSElasticBeanstalk beanstalk = new AWSElasticBeanstalkClient(credentials);
-                    beanstalk.setEndpoint(properties.getEndpoint());
-                    return beanstalk;
-                }
-            });
-
-    private final LoadingCache<String, AmazonEC2> amazonEC2 = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .build(
-                new CacheLoader<String, AmazonEC2>() {
-                    @Override
-                    public AmazonEC2 load(@Nullable String endpoint) throws Exception {
-
-                        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
-                        AmazonEC2Client ec2 = new AmazonEC2Client(credentials);
-                        ec2.setEndpoint(properties.getInstances().getEndpoint());
-
-                        return ec2;
-                    }
-                });
-
-    private final LoadingCache<String, List<Stack>> cloudformationStacks = CacheBuilder.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .build(
-                new CacheLoader<String, List<Stack>>() {
-                    @Override
-                    public List<Stack> load(@Nullable String endpoint) throws Exception {
-
-                        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
-                        AmazonCloudFormation cf = new AmazonCloudFormationClient(credentials);
-                        cf.setEndpoint(properties.getCloudFormation().getEndpoint());
-
-                        List<Stack> stacks = new ArrayList<>();
-                        DescribeStacksResult stacksResults = cf.describeStacks();
-                        stacks.addAll(stacksResults.getStacks());
-
-                        for (int i=0 ; i<100 ; i++) {
-                            if(stacksResults.getNextToken() == null) {
-                                return stacks;
-                            } else {
-                                stacksResults = cf.describeStacks(new DescribeStacksRequest().withNextToken(stacksResults.getNextToken()));
-                                stacks.addAll(stacksResults.getStacks());
-                            }
-                        }
-
-                        return stacks;
-                    }
-                });
-
-    private final LoadingCache<String, String> instanceDns = CacheBuilder.newBuilder()
-        .maximumSize(1000)
-        .expireAfterWrite(10, TimeUnit.MINUTES)
-        .build(
-            new CacheLoader<String, String>() {
-                @Override
-                public String load(@Nullable String id) {
-                    return getEC2().describeInstances(new DescribeInstancesRequest().withInstanceIds(id)).getReservations().get(0).getInstances().get(0).getPrivateDnsName();
-                }
-            });
-
-    private final LoadingCache<String, Application> applications = CacheBuilder.newBuilder()
-            .maximumSize(1000)
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .build(
-                new CacheLoader<String, Application>() {
-                    @Override
-                    public Application load(@Nullable String applicationName) {
-                        return new Application(applicationName, getInstances(applicationName));
-                    }
-                });
-
     @Autowired
     private BeanstalkProperties properties;
 
     public BeanstalkRepository() {
-    }
-
-    private AWSElasticBeanstalk getBeanstalk() {
-        try {
-            return awsElasticBeanstalk.get("");
-        } catch (ExecutionException e) {
-            LOGGER.error("Connot retreive beanstalk client", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    private AmazonEC2 getEC2() {
-        try {
-            return amazonEC2.get("");
-        } catch (ExecutionException e) {
-            LOGGER.error("Connot retreive EC2 client", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<Stack> getStacks() {
-        try {
-            return cloudformationStacks.get("");
-        } catch (ExecutionException e) {
-            LOGGER.error("Connot retreive Cloudformation stacks", e);
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -207,24 +96,68 @@ public class BeanstalkRepository implements ApplicationRepository {
 
     @Override
     public String getInstanceManagementUrl(String id) {
-
-        try {
-            BeanstalkProperties.Management management = properties.getInstances().getManagement();
-            String privateDns = instanceDns.get(id);
-            return  management.getScheme()+"://"+privateDns+":"+management.getPort()+management.getPath();
-        } catch (ExecutionException e) {
-            LOGGER.error("Cannot retreive instance DNS", e);
-            throw new RuntimeException(e);
-        }
+        BeanstalkProperties.Management management = properties.getInstances().getManagement();
+        String privateDns = getInstancePrivateDns(id);
+        return  management.getScheme()+"://"+privateDns+":"+management.getPort()+management.getPath();
     }
 
-    protected List<Instance> getInstances(String appName) {
+    @Cacheable("awsBeanstalkClient")
+    private AWSElasticBeanstalk getBeanstalk() {
+        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+        AWSElasticBeanstalk beanstalk = new AWSElasticBeanstalkClient(credentials);
+        beanstalk.setEndpoint(properties.getEndpoint());
+        return beanstalk;
+    }
+
+    @Cacheable("awsEC2Client")
+    private AmazonEC2 getEC2() {
+        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+        AmazonEC2Client ec2 = new AmazonEC2Client(credentials);
+        ec2.setEndpoint(properties.getInstances().getEndpoint());
+        return ec2;
+    }
+
+    @Cacheable("awsCloudformationStacks")
+    private List<Stack> getStacks() {
+        AWSCredentials credentials = new DefaultAWSCredentialsProviderChain().getCredentials();
+        AmazonCloudFormation cf = new AmazonCloudFormationClient(credentials);
+        cf.setEndpoint(properties.getCloudFormation().getEndpoint());
+
+        List<Stack> stacks = new ArrayList<>();
+        DescribeStacksResult stacksResults = cf.describeStacks();
+        stacks.addAll(stacksResults.getStacks());
+
+        for (int i=0 ; i<100 ; i++) {
+            if(stacksResults.getNextToken() == null) {
+                return stacks;
+            } else {
+                stacksResults = cf.describeStacks(new DescribeStacksRequest().withNextToken(stacksResults.getNextToken()));
+                stacks.addAll(stacksResults.getStacks());
+            }
+        }
+
+        return stacks;
+    }
+
+    @Cacheable("awsEC2InstancePrivateDns")
+    private String getInstancePrivateDns(String instanceId) {
+        return getEC2().describeInstances(new DescribeInstancesRequest().withInstanceIds(instanceId))
+                .getReservations().get(0).getInstances().get(0).getPrivateDnsName();
+
+    }
+
+    @Cacheable("awsBeanstalkApplications")
+    private Application getApplication(String name) {
+        return new Application(name, getInstances(name));
+    }
+
+    private List<Instance> getInstances(String appName) {
 
         DescribeEnvironmentsRequest envRequest = new DescribeEnvironmentsRequest().withApplicationName(appName);
 
         List<EnvironmentDescription> environments = getBeanstalk().describeEnvironments(envRequest).getEnvironments();
         if (environments == null || environments.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         DescribeEnvironmentResourcesRequest request = new DescribeEnvironmentResourcesRequest();
@@ -232,7 +165,7 @@ public class BeanstalkRepository implements ApplicationRepository {
         if(StringUtils.hasText(properties.getEnvironment())) {
             Optional<EnvironmentDescription> environment = environments.stream().filter(e -> e.getEnvironmentName().matches(properties.getEnvironment())).findFirst();
             if (!environment.isPresent()) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             request.withEnvironmentName(environment.get().getEnvironmentName());
@@ -262,7 +195,7 @@ public class BeanstalkRepository implements ApplicationRepository {
                     .findFirst();
 
             if (!oEnvironmentId.isPresent()) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             request.withEnvironmentId(oEnvironmentId.get());
@@ -272,7 +205,7 @@ public class BeanstalkRepository implements ApplicationRepository {
         return resources.getInstances().stream().map(instance -> new Instance("", instance.getId(), instance.getId(), getInstanceStatus(instance.getId()))).collect(Collectors.toList());
     }
 
-    protected String getInstanceStatus(String... id) {
+    private String getInstanceStatus(String... id) {
         try {
             return TO_STATUS.apply(getEC2().describeInstanceStatus(new DescribeInstanceStatusRequest().withInstanceIds(id))
                     .getInstanceStatuses().get(0)
@@ -283,22 +216,17 @@ public class BeanstalkRepository implements ApplicationRepository {
         }
     }
 
-    protected Function<ApplicationDescription, Application> TO_APPLICATION = app -> {
+    private Function<ApplicationDescription, Application> TO_APPLICATION = app -> {
         if(app == null) { return null; }
-        try {
-            return applications.get(app.getApplicationName());
-        } catch (ExecutionException e) {
-            LOGGER.error("Cannot retreive application", e);
-            throw new RuntimeException(e);
-        }
+        return getApplication(app.getApplicationName());
     };
 
-    protected Function<com.amazonaws.services.ec2.model.Instance, Instance> TO_INSTANCE = instance -> {
+    private Function<com.amazonaws.services.ec2.model.Instance, Instance> TO_INSTANCE = instance -> {
         if(instance == null) { return null; }
         return new Instance("", instance.getInstanceId(), instance.getInstanceId(), getInstanceStatus(instance.getInstanceId()));
     };
 
-    protected Function<InstanceState, String> TO_STATUS = state -> {
+    private Function<InstanceState, String> TO_STATUS = state -> {
         switch (state.getName()) {
             case "pending": return "STARTING";
             case "running": return "UP";

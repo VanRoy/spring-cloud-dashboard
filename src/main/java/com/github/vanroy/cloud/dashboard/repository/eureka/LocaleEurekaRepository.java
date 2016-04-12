@@ -1,11 +1,11 @@
 package com.github.vanroy.cloud.dashboard.repository.eureka;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.shared.Pair;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.github.vanroy.cloud.dashboard.model.Application;
 import com.github.vanroy.cloud.dashboard.model.InstanceHistory;
 import com.github.vanroy.cloud.dashboard.repository.RegistryRepository;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.shared.Pair;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 
 import java.util.Collection;
 import java.util.Date;
