@@ -19,10 +19,17 @@ import com.github.vanroy.cloud.dashboard.repository.ApplicationRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.LocaleEurekaRepository;
 import com.github.vanroy.cloud.dashboard.repository.eureka.RemoteEurekaRepository;
 import com.github.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
+
+import java.util.Arrays;
+import java.util.Base64;
+
+import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -40,7 +47,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @ComponentScan("com.github.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
-
+    @Autowired
+    private HttpClientProperties httpClientProperties;
+        
     @Bean
     @ConditionalOnClass(name="com.netflix.eureka.PeerAwareInstanceRegistry")
     @ConditionalOnMissingBean(ApplicationRepository.class)
@@ -64,13 +73,29 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public HttpClient HttpClient() {
-        return HttpClients.custom()
-                .setMaxConnTotal(100)
-                .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(2000).build())
-                .setDefaultRequestConfig(RequestConfig.custom()
-                    .setSocketTimeout(2000)
-                    .setConnectTimeout(1000)
-                    .setConnectionRequestTimeout(1000).build())
-                .build();
+        HttpClientBuilder builder = HttpClients.custom().setMaxConnTotal(100)
+                .setDefaultSocketConfig(
+                        SocketConfig.custom().setSoTimeout(httpClientProperties.getSocketTimeout()).build())
+                .setDefaultRequestConfig(
+                    RequestConfig.custom()
+                       .setSocketTimeout(httpClientProperties.getSocketTimeout())
+                       .setConnectTimeout(httpClientProperties.getConnectTimeout())
+                       .setConnectionRequestTimeout(httpClientProperties.getRequestTimeout()
+                    ).build());
+
+        if (httpClientProperties.getUsername() != null && httpClientProperties.getPassword() != null){
+            builder.setDefaultHeaders(
+                Arrays.asList(new Header[] {
+                    createBasicAuthHeader(
+                        httpClientProperties.getUsername(), 
+                        httpClientProperties.getPassword()) }));
+        }
+
+        return builder.build();
+    }
+
+    public static Header createBasicAuthHeader(String username, String password) {
+        return new BasicHeader("Authorization",
+                "Basic " + new String(Base64.getEncoder().encode((username + ":" + password).getBytes())));
     }
 }
