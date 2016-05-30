@@ -46,6 +46,26 @@ public class Application {
 }
 ```
 
+#### HTTP Client Configuration
+
+Spring Cloud Dashboard uses an Apache HTTP Client to query your instance's actuator endpoints. Sometimes it is possible that these endpoints are secured. Configurations are available to customize you http client with Basic pre authorization headers.
+
+```
+spring:
+  cloud:
+    dashboard:
+      http:
+        # Basic Credentials
+        username: user
+        password: password
+        
+        # Optional Defaults values
+        maxConnection: 100 
+		connectTimeout: 1000
+		socketTimeout: 2000 
+		requestTimeout: 1000
+```
+
 #### Samples:
 
 Samples are available in this repository : https://github.com/VanRoy/spring-cloud-dashboard-samples
