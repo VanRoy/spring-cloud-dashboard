@@ -20,8 +20,8 @@ import com.github.vanroy.cloud.dashboard.repository.eureka.LocaleEurekaRepositor
 import com.github.vanroy.cloud.dashboard.repository.eureka.RemoteEurekaRepository;
 import com.github.vanroy.cloud.dashboard.stream.CircuitBreakerStreamServlet;
 
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
@@ -47,6 +47,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @ComponentScan("com.github.vanroy.cloud.dashboard")
 public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
+
     @Autowired
     private HttpClientProperties httpClientProperties;
         
@@ -73,29 +74,27 @@ public class CloudDashboardConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public HttpClient HttpClient() {
-        HttpClientBuilder builder = HttpClients.custom().setMaxConnTotal(100)
-                .setDefaultSocketConfig(
-                        SocketConfig.custom().setSoTimeout(httpClientProperties.getSocketTimeout()).build())
-                .setDefaultRequestConfig(
-                    RequestConfig.custom()
-                       .setSocketTimeout(httpClientProperties.getSocketTimeout())
-                       .setConnectTimeout(httpClientProperties.getConnectTimeout())
-                       .setConnectionRequestTimeout(httpClientProperties.getRequestTimeout()
-                    ).build());
 
-        if (httpClientProperties.getUsername() != null && httpClientProperties.getPassword() != null){
-            builder.setDefaultHeaders(
-                Arrays.asList(new Header[] {
-                    createBasicAuthHeader(
-                        httpClientProperties.getUsername(), 
-                        httpClientProperties.getPassword()) }));
+        HttpClientBuilder builder = HttpClients.custom()
+            .setMaxConnTotal(httpClientProperties.getMaxConnection())
+            .setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(httpClientProperties.getSocketTimeout()).build())
+            .setDefaultRequestConfig(RequestConfig.custom()
+               .setSocketTimeout(httpClientProperties.getSocketTimeout())
+               .setConnectTimeout(httpClientProperties.getConnectTimeout())
+               .setConnectionRequestTimeout(httpClientProperties.getRequestTimeout())
+            .build());
+
+        if (httpClientProperties.getUsername() != null && httpClientProperties.getPassword() != null) {
+            builder.setDefaultHeaders(Collections.singletonList(
+                createBasicAuthHeader(httpClientProperties.getUsername(),httpClientProperties.getPassword())
+            ));
         }
 
         return builder.build();
     }
 
-    public static Header createBasicAuthHeader(String username, String password) {
-        return new BasicHeader("Authorization",
-                "Basic " + new String(Base64.getEncoder().encode((username + ":" + password).getBytes())));
+    private static Header createBasicAuthHeader(String username, String password) {
+        String basicAuth = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()));
+        return new BasicHeader("Authorization", "Basic " + basicAuth);
     }
 }

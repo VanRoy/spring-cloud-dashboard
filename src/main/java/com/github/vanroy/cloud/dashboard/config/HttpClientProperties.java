@@ -8,23 +8,20 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "spring.cloud.dashboard.http")
 public class HttpClientProperties {
+
 	private String username;
 	private String password;
-	private Integer maxConnection;
-	private Integer connectTimeout;
-	private Integer socketTimeout;
-	private Integer requestTimeout;
+	private Integer maxConnection = 100;
+	private Integer connectTimeout = 1000;
+	private Integer socketTimeout = 2000;
+	private Integer requestTimeout = 1000;
 
-	@PostConstruct
-	public void init() {
-		if (maxConnection == null)
-			maxConnection = 100;
-		if (connectTimeout == null)
-			connectTimeout = 1000;
-		if (socketTimeout == null)
-			socketTimeout = 2000;
-		if (requestTimeout == null)
-			requestTimeout = 1000;
+	public Integer getMaxConnection() {
+		return maxConnection;
+	}
+
+	public void setMaxConnection(Integer maxConnection) {
+		this.maxConnection = maxConnection;
 	}
 
 	public String getUsername() {
