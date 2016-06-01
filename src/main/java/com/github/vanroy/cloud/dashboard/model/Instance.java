@@ -16,7 +16,7 @@
 package com.github.vanroy.cloud.dashboard.model;
 
 /**
- * The domain model for all application at the spring cloud dashboard application.
+ * The domain model for instance of application at the spring cloud dashboard application.
  * @author Julien Roy
  */
 public class Instance {

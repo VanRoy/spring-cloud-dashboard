@@ -1,18 +1,27 @@
-<div class="container" style="margin-bottom: 20px;">
-	<div class="row">
-		<div class="col-md-12">
-			<h2 style="display: inline-block;">{{ instance.name }}
-				<small>{{ instance.url }}</small>
-			</h2>
+<div class="navbar header--application" style="margin-bottom: 0px;">
+	<div class="navbar-inner">
+		<div class="container">
+			<div class="application--name">{{ appId }}</div>
+			<ul class="nav navbar-nav navbar-right">
+				<li class="navbar-link" ng-class="{active: $state.includes('apps.details')}"> <a ui-sref="apps.details.metrics({id: application.id})"><span>Details</span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="apps.env({id: application.id})" ><span>Environment<span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="apps.logging({id: application.id})" ><span>Logging</span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="apps.jmx({id: application.id})"><span>JMX</span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="apps.threads({id: application.id})"><span>Threads</span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="apps.trace({id: application.id})"><span>Trace</span></a></li>
+				<li class="navbar-link" ui-sref-active="active" ><a ui-sref="circuit-breaker({type: 'instance', id: instance.id})" ng-disabled="instance.circuitBreaker !== true"><span>Circuit breakers</span></a></li>
+			</ul>
 		</div>
 	</div>
-	<div class="row text-center">
-		<div class="btn-group">
-			<a class="btn btn-default" ng-class="{active: $state.includes('apps.details')}" ui-sref="apps.details.metrics({id: instance.id})">Details</a>
-			<a class="btn btn-default" ui-sref-active="active" ui-sref="apps.logging({id: instance.id})" >Logging</a></label>
-			<a class="btn btn-default" ui-sref-active="active" ui-sref="apps.jmx({id: instance.id})">JMX</a></label>
-			<a class="btn btn-default" ui-sref-active="active" ui-sref="apps.threads({id: instance.id})">Threads</a></label>
-			<a class="btn btn-default" ui-sref-active="active" ui-sref="circuit-breaker({type: 'instance', id: instance.id})" ng-disabled="instance.circuitBreaker !== true">Circuit breakers</a></label>
+</div>
+
+<div class="navbar header--application-urls">
+	<div class="navbar-inner">
+		<div class="container">
+			<ul class="nav navbar-nav">
+				<li style=" text-align: center;"><span>{{ instance.name }}</span></li>
+				<li style="text-align: center;"><a href="{{ instance.url }}" title="Instance URL"><i class="icon-home" ></i> {{ instance.url }}</a></li>
+			</ul>
 		</div>
 	</div>
 </div>

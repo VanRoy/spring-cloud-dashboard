@@ -12,9 +12,9 @@ public class HttpClientProperties {
 	private String username;
 	private String password;
 	private Integer maxConnection = 100;
-	private Integer connectTimeout = 1000;
-	private Integer socketTimeout = 2000;
-	private Integer requestTimeout = 1000;
+	private Integer connectTimeout = 2000;
+	private Integer socketTimeout = 5000;
+	private Integer requestTimeout = 2000;
 
 	public Integer getMaxConnection() {
 		return maxConnection;

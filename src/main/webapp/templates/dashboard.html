@@ -1,20 +1,27 @@
 <!doctype html>
 <html class="no-js">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <title>Spring Cloud Dashboard</title>
-<meta name="description" content="">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png" />
 <link rel="stylesheet" type="text/css" href="css/dashboard.css" />
 </head>
 <body ng-app="springCloudDashboard">
-	<script type="text/javascript">
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+
 		// Work around Google font rendering issues in webkit browsers on Windows 7
 		if (navigator.userAgent.indexOf("NT 6.1") != -1) {
 			document.body.style.WebkitTextStroke = "0.5px";
 		}
+
+		dashboardConfig = {
+			refreshTimeout: /*[[${refreshTimeout}]]*/ 60000
+		};
+		/*]]>*/
 	</script>
 	<div class="viewport">
 
@@ -44,11 +51,10 @@
 			</div>
 		</header>
 
-		<div class="container-fluid ">
-			<div class="main-body--wrapper">
-				<div ui-view></div>
-			</div>
+		<div class="main-body--wrapper">
+			<div ui-view=""></div>
 		</div>
+
 		<footer class="footer">
 			<div class="container">
 				Code licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache Open Source</a>

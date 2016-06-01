@@ -1,11 +1,11 @@
 package com.github.vanroy.cloud.dashboard.repository.eureka;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.shared.Pair;
-import com.netflix.eureka.PeerAwareInstanceRegistry;
 import com.github.vanroy.cloud.dashboard.model.Application;
 import com.github.vanroy.cloud.dashboard.model.InstanceHistory;
 import com.github.vanroy.cloud.dashboard.repository.RegistryRepository;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.shared.Pair;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 
 import java.util.Collection;
 import java.util.Date;
@@ -19,30 +19,36 @@ import java.util.stream.Collectors;
  */
 public class LocaleEurekaRepository extends EurekaRepository implements RegistryRepository {
 
+    private final PeerAwareInstanceRegistry registry;
+
+    public LocaleEurekaRepository(PeerAwareInstanceRegistry registry) {
+        this.registry = registry;
+    }
+
     @Override
     public Collection<Application> findAll() {
-        return PeerAwareInstanceRegistry.getInstance().getSortedApplications().stream()
+        return registry.getSortedApplications().stream()
             .map(TO_APPLICATION)
             .collect(Collectors.toList());
     }
 
     @Override
     public Application findByName(String name) {
-        return TO_APPLICATION.apply(PeerAwareInstanceRegistry.getInstance().getApplication(name));
+        return TO_APPLICATION.apply(registry.getApplication(name));
     }
     
     @Override
     public List<InstanceHistory> getCanceledInstanceHistory() {
-        return PeerAwareInstanceRegistry.getInstance().getLastNCanceledInstances().stream().map(TO_REGISTRY_HISTORY).collect(Collectors.toList());
+        return registry.getLastNCanceledInstances().stream().map(TO_REGISTRY_HISTORY).collect(Collectors.toList());
     }
 
     @Override
     public List<InstanceHistory> getRegisteredInstanceHistory() {
-        return PeerAwareInstanceRegistry.getInstance().getLastNRegisteredInstances().stream().map(TO_REGISTRY_HISTORY).collect(Collectors.toList());
+        return registry.getLastNRegisteredInstances().stream().map(TO_REGISTRY_HISTORY).collect(Collectors.toList());
     }
     protected InstanceInfo findInstanceInfo(String id) {
         String[] instanceIds = id.split("_", 2);
-        return PeerAwareInstanceRegistry.getInstance().getInstanceByAppAndId(instanceIds[0], instanceIds[1].replaceAll("_", "."));
+        return registry.getInstanceByAppAndId(instanceIds[0], instanceIds[1].replaceAll("_", "."));
     }
 
     private Function<Pair<Long, String>, InstanceHistory> TO_REGISTRY_HISTORY = history -> new InstanceHistory(history.second(), new Date(history.first()));

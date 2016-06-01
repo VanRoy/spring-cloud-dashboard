@@ -37,7 +37,7 @@ angular.module('springCloudDashboard')
 			}
 		};
 
-		$scope.updateApStatus = function(app) {
+		$scope.updateAppStatus = function(app) {
 
 		   var instanceUp = 0, instanceCount = 0;
 
@@ -51,7 +51,7 @@ angular.module('springCloudDashboard')
 		   var appState = instanceUp / instanceCount;
 		   if(appState > 0.8) {
 			  app.badge = 'success';
-		   } else if (app.instanceUp == 0) {
+		   } else if (instanceUp == 0) {
 			  app.badge = 'danger';
 		   } else {
 			  app.badge = 'warning';
@@ -63,6 +63,8 @@ angular.module('springCloudDashboard')
 
 		$scope.loadData = function() {
 
+			$scope.loading = true;
+
 			return Applications.query(function(applications) {
 
                 applications.forEach(function(app) {
@@ -70,7 +72,7 @@ angular.module('springCloudDashboard')
                     app.instances.forEach(function(instance) {
 
 						InstanceOverview.getHealth(instance).finally(function() {
-							$scope.updateApStatus(app);
+							$scope.updateAppStatus(app);
 						});
 
                     });
@@ -87,21 +89,25 @@ angular.module('springCloudDashboard')
 						if(applications.length > 0) $state.go('overview.select', {id: applications[0].name});
 					}, 10);
 				}
-	  		});
+
+				$scope.loading = false;
+
+			});
   		};
 
 		$scope.loadData();
 
-		// reload site every 30 seconds
-		var task = $interval(function() {
-			$scope.loadData();
-		}, 30000);
+		if(dashboardConfig.refreshTimeout > 0) {
+			// reload site every XX seconds
+			$interval(function () {
+				$scope.loadData();
+			}, dashboardConfig.refreshTimeout);
+		}
   	}])
 	.controller('overviewSelectedCtrl', ['$scope', '$location', '$interval', '$q', '$stateParams','Applications', 'InstanceOverview', 'Instance',
-	function ($scope, $location, $interval, $q, $stateParams, Applications, InstanceOverview, Instance) {
-
+	function ($scope, $location, $interval, $q, $stateParams) {
+		$scope.id = $stateParams.id;
 		$scope.selectApp($stateParams.id);
-
 	}])
     .controller('appsHistoryCtrl',  ['$scope', 'InstancesHistory', function ($scope, InstancesHistory) {
         InstancesHistory.query(function(history) {
@@ -109,14 +115,24 @@ angular.module('springCloudDashboard')
             $scope.cancelled = history.lastCancelled;
         });
    	}])
-  	.controller('appsCtrl',  ['$scope', 'instance', function ($scope, instance) {
-  		$scope.instance = instance;
+  	.controller('appsCtrl',  ['$scope', 'instance', '$stateParams', function ($scope, instance, $stateParams) {
+		$scope.appId = $stateParams.appId;
+		$scope.instance = instance;
   	}])
   	.controller('detailsCtrl', ['$scope', '$interval', 'instance', 'InstanceDetails', 'MetricsHelper',
   	                            function ($scope, $interval, instance, InstanceDetails, MetricsHelper) {
   		$scope.instance = instance;
   		InstanceDetails.getInfo(instance).success(function(info) {
-			$scope.info = info;
+			$scope.appInfo = info;
+			if(info.app) {
+				$scope.appInfo = info.app;
+			}
+			if(info.git) {
+				$scope.gitInfo = info.git;
+			}
+			if($scope.appInfo.git) {
+				delete $scope.appInfo.git;
+			}
 		}).error( function(error) {
 			$scope.error = error;
 		});
@@ -127,11 +143,19 @@ angular.module('springCloudDashboard')
 			$scope.health = health;
 		});
 
+		$scope.isHealthDetail = function (key, value) {
+			return key !== 'status' && value !== null && (Array.isArray(value) || typeof value !== 'object');
+		};
+
+		$scope.isChildHealth = function (key, health) {
+			return health !== null && !Array.isArray(health) && typeof health === 'object';
+		};
+
         InstanceDetails.getMetrics(instance).success(function(metrics) {
 			$scope.metrics = metrics;
 			$scope.metrics["mem.used"] = $scope.metrics["mem"] - $scope.metrics["mem.free"];
 
-			$scope.metrics["systemload.averagepercent"] = $scope.metrics["systemload.average"] / $scope.metrics["processors"] * 100;
+			$scope.metrics["systemload.averagepercent"] = parseFloat($scope.metrics["systemload.average"]) / parseFloat($scope.metrics["processors"]) * 100;
 
 			$scope.gcInfos = {};
 			$scope.datasources = {};
@@ -173,38 +197,67 @@ angular.module('springCloudDashboard')
   	}])
   	.controller('detailsMetricsCtrl',  ['$scope', 'instance', 'InstanceDetails', 'Abbreviator', 'MetricsHelper',
   	                                    function ($scope, instance, InstanceDetails, Abbreviator, MetricsHelper) {
-  		$scope.memoryData = [];
-  		$scope.heapMemoryData = [];
-  		$scope.counterData = [];
-  		$scope.gaugeData = [];
+
+		$scope.counters = [];
+		$scope.countersMax = 0;
+		$scope.gauges = [];
+		$scope.gaugesMax = 0;
+		$scope.showRichGauges = false;
 
         InstanceDetails.getMetrics(instance).success(function(metrics) {
-			//*** Extract data for Counter-Chart and Gauge-Chart
-			$scope.counterData = [ { key : "value", values: [] } ];
-			$scope.gaugeData = [ { key : "value", values: []   },
-			                     { key : "average", values: [] },
-								 { key : "min", values: []     },
-								 { key : "max", values: []     },
-			                     { key : "count", values: []   } ];
 
-			MetricsHelper.find(metrics,
-					[ /counter\.(.+)/, /gauge\.(.+)\.val/, /gauge\.(.+)\.avg/,  /gauge\.(.+)\.min/,  /gauge\.(.+)\.max/,  /gauge\.(.+)\.count/,   /gauge\.(.+)\.alpha/,  /gauge\.(.+)/],
-					[ function (metric, match, value) { $scope.counterData[0].values.push([ match[1], value]); },
-					function (metric, match, value) { $scope.gaugeData[0].values.push([ match[1], value]); },
-					function (metric, match, value) { $scope.gaugeData[1].values.push([ match[1], value]); },
-					function (metric, match, value) { $scope.gaugeData[2].values.push([ match[1], value]); },
-					function (metric, match, value) { $scope.gaugeData[3].values.push([ match[1], value]); },
-					function (metric, match, value) { $scope.gaugeData[4].values.push([ match[1], value]); },
-					function (metric, match, value) { /*NOP*/ },
-					function (metric, match, value) { $scope.gaugeData[0].values.push([ match[1], value]); }]);
-
-			//in case no richGauges are present remove empty groups
-			var i = $scope.gaugeData.length;
-			while (--i) {
-				if ($scope.gaugeData[i].values.length === 0) {
-					$scope.gaugeData.splice(i, 1);
+			function merge(array, obj) {
+				for (var i = 0; i < array.length; i++) {
+					if (array[i].name === obj.name) {
+						for (var a in obj) {
+							array[i][a] = obj[a];
+						}
+						return;
+					}
 				}
+				array.push(obj);
 			}
+
+			MetricsHelper.find(metrics, [/counter\..+/, /(gauge\..+)\.val/,
+				/(gauge\..+)\.avg/, /(gauge\..+)\.min/, /(gauge\..+)\.max/,
+				/(gauge\..+)\.count/, /(gauge\..+)\.alpha/, /(gauge\..+)/
+			], [function (metric, match, value) {
+				$scope.counters.push({ name: metric, value: value });
+				if (value > $scope.countersMax) {
+					$scope.countersMax = value;
+				}
+			},
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], value: value });
+					$scope.showRichGauges = true;
+					if (value > $scope.gaugesMax) {
+						$scope.gaugesMax = value;
+					}
+				},
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], avg: value.toFixed(2) });
+				},
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], min: value });
+				},
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], max: value });
+					if (value > $scope.gaugesMax) {
+						$scope.gaugesMax = value;
+					}
+				},
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], count: value });
+				},
+				function () { /*NOP*/ },
+				function (metric, match, value) {
+					merge($scope.gauges, { name: match[1], value: value });
+					if (value > $scope.gaugesMax) {
+						$scope.gaugesMax = value;
+					}
+				}
+			]);
+
 		}).error( function(error) {
 			$scope.error = error;
 		});
@@ -214,25 +267,25 @@ angular.module('springCloudDashboard')
   			return function(d, i) {
   		    	return colorArray[i % colorArray.length];
   		    };
-  		}
+  		};
 
 		$scope.abbreviateFunction = function(targetLength, preserveLast, shortenThreshold){
   		    return function(s) {
   		        return Abbreviator.abbreviate(s, '.', targetLength, preserveLast, shortenThreshold)
   		    };
-  		}
+  		};
 
 		$scope.intFormatFunction = function(){
   		    return function(d) {
   		        return d3.format('d')(d);
   		    };
-  		}
+  		};
 
   		$scope.toolTipContentFunction = function(){
   			return function(key, x, y, e, graph) {
   		    	return '<b>' + key + '</b> ' +e.point[0] + ': ' + e.point[1] ;
   			}
-  		}
+  		};
 
   	}])
   	.controller('detailsEnvCtrl',  ['$scope', 'instance', 'InstanceDetails',
@@ -258,17 +311,126 @@ angular.module('springCloudDashboard')
 			$scope.error = error;
 		});
   	}])
-  	.controller('detailsClasspathCtrl',  ['$scope', 'instance', 'InstanceDetails', 'Abbreviator',
-  	                                      function ($scope, instance, InstanceDetails, Abbreviator) {
-  		$scope.instance = instance;
-  		InstanceDetails.getEnv(instance).success(function(env) {
-			var separator =  env['systemProperties']['path.separator'];
-			$scope.classpath = env['systemProperties']['java.class.path'].split(separator);
-		}).error( function(error) {
-			$scope.error = error;
-		});
-  	}])
-  	.controller('loggingCtrl',  ['$scope', 'instance', 'InstanceLogging',
+	.controller('environmentCtrl',  ['$scope', 'instance', 'InstanceDetails',
+			function ($scope, instance, InstanceDetails) {
+		$scope.instance = instance;
+		$scope.overrides = { values: [{key: '', value: '' }], error: null};
+
+		var toArray = function(map) {
+			var array = [];
+			for (var key in map) {
+				var value = map[key];
+				if (value instanceof Object) {
+					value = toArray(value);
+				}
+				var entry = {key: key, value: value};
+				array.push(entry);
+			}
+			return array.length > 0 ? array : undefined;
+		};
+
+		var collectKeys = function(envArray) {
+			var allKeys = {};
+			for (var i = 0; i < envArray.length; i++) {
+				for (var j = 0; envArray[i].value && j < envArray[i].value.length; j++) {
+					allKeys[envArray[i].value[j].key] = true;
+				}
+			}
+			return Object.getOwnPropertyNames(allKeys);
+		};
+
+		$scope.reload = function() {
+			$scope.env = {};
+			$scope.envArray = [];
+			$scope.allKeys = [];
+
+			InstanceDetails.getEnv(instance)
+					.success(function (env) {
+						$scope.env = env;
+						$scope.envArray = toArray(env);
+						$scope.allKeys = collectKeys($scope.envArray);
+					})
+					.error(function (error) {
+						$scope.error = error;
+					});
+		};
+
+		$scope.reload();
+
+		var getValue = function(item) {
+			if (item.key && $scope.allKeys.indexOf(item.key) >= 0) {
+				InstanceDetails.getEnv(instance, item.key).success(function(value) {
+					item.value = value;
+				});
+			}
+		};
+
+		$scope.onChangeOverrideItem = function(item) {
+			getValue(item);
+
+			if ($scope.overrides.values[$scope.overrides.values.length - 1].key) {
+				$scope.overrides.values.push({key: '', value: '' });
+			}
+		};
+
+		$scope.override = function() {
+			var map = {};
+			for (var i = 0; i < $scope.overrides.values.length; i++) {
+				if ($scope.overrides.values[i].key) {
+					map[$scope.overrides.values[i].key] = $scope.overrides.values[i].value;
+				}
+			}
+
+			$scope.overrides.error = null;
+			InstanceDetails.setEnv(instance, map).success(function () {
+				$scope.overrides = { values: [{key: '', value: '' }], error: null, changes: null};
+				$scope.reload();
+			})
+					.error(function (error) {
+						$scope.overrides.error = error;
+						$scope.overrides.changes = null;
+						$scope.reload();
+					});
+		};
+
+		$scope.reset = function() {
+			$scope.overrides.error = null;
+			$scope.overrides.changes = null;
+			InstanceDetails.resetEnv(instance).success(function () {
+				$scope.reload();
+			})
+					.error(function (error) {
+						$scope.overrides.error = error;
+						$scope.reload();
+					});
+
+		};
+
+		$scope.refresh = function() {
+			$scope.overrides.error = null;
+			$scope.overrides.changes = null;
+			InstanceDetails.refresh(instance).success(function (changes) {
+				$scope.overrides.changes = changes;
+				$scope.reload();
+			})
+			.error(function (error) {
+				$scope.overrides.error = error;
+				$scope.reload();
+			});
+
+		};
+	}])
+	.controller('detailsClasspathCtrl',  ['$scope', 'instance', 'InstanceDetails',
+							function ($scope, instance, InstanceDetails) {
+			$scope.instance = instance;
+			InstanceDetails.getEnv(instance).success(function(env) {
+				var separator =  env['systemProperties']['path.separator'];
+				$scope.classpath = env['systemProperties']['java.class.path'].split(separator);
+			}).error( function(error) {
+				$scope.error = error;
+			});
+	}])
+	.controller('loggingCtrl',  ['$scope', 'instance', 'InstanceLogging',
   	                             function ($scope, instance, InstanceLogging) {
   		$scope.loggers = [];
   		$scope.filteredLoggers = [];
@@ -283,11 +445,10 @@ angular.module('springCloudDashboard')
   		}
 
 		$scope.setLogLevel = function(name, level) {
-			InstanceLogging.setLoglevel(instance, name, level).then(function(response){
+			InstanceLogging.setLoglevel(instance, name, level).then(function(){
 				$scope.reload(name);
 			}).catch(function(response){
 				$scope.error = response.error;
-				console.log(response.stacktrace)
 				$scope.reload(name);
 			})
   		};
@@ -442,8 +603,7 @@ angular.module('springCloudDashboard')
   			}
   		}
   	}])
-  	.controller('threadsCtrl',  ['$scope', 'instance', 'InstanceThreads',
-  	                                function ($scope, instance, InstanceThreads) {
+  	.controller('threadsCtrl',  ['$scope', 'instance', 'InstanceThreads', function ($scope, instance, InstanceThreads) {
   		$scope.dumpThreads = function() {
   			InstanceThreads.getDump(instance).success(function(dump) {
 	  			$scope.dump = dump;
@@ -459,4 +619,42 @@ angular.module('springCloudDashboard')
 	  			$scope.error = error;
 	  		});
   		}
-  	}]);
+  	}])
+	.controller('traceCtrl',  ['$scope', '$interval', 'instance', 'InstanceDetails', function ($scope, $interval, instance, InstanceDetails) {
+
+		$scope.lastTraceTime = 0;
+		$scope.traces = [];
+		$scope.refresher = null;
+		$scope.refreshInterval = 5;
+
+		$scope.refresh = function () {
+			InstanceDetails.getTraces(instance)
+					.success(function (traces) {
+						for (var i = 0; i < traces.length; i++) {
+							if (traces[i].timestamp > $scope.lastTraceTime) {
+								$scope.traces.push(traces[i]);
+							}
+						}
+						if (traces.length > 0) {
+							$scope.lastTraceTime = traces[traces.length - 1].timestamp;
+						}
+
+					})
+					.error(function (error) {
+						$scope.error = error;
+					});
+		};
+
+		$scope.toggleAutoRefresh = function() {
+			if ($scope.refresher === null) {
+				$scope.refresher = $interval(function () {
+					$scope.refresh();
+				}, $scope.refreshInterval * 1000);
+			} else {
+				$interval.cancel($scope.refresher);
+				$scope.refresher = null;
+			}
+		};
+
+		$scope.refresh();
+	}]);

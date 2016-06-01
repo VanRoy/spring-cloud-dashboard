@@ -20,12 +20,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.github.vanroy.cloud.dashboard.config.CloudDashboardConfig;
 import com.github.vanroy.cloud.dashboard.repository.RegistryRepository;
 import com.github.vanroy.cloud.dashboard.turbine.MockStreamServlet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.test.IntegrationTest;
@@ -85,13 +87,12 @@ public class DashboardApplicationTest {
 			SpringApplication.run(DashboardApplicationTest.DashboardApplication.class, args);
 		}
 
-
         @Bean
         public ServletRegistrationBean hystrixStreamServlet() {
             return new ServletRegistrationBean(new MockStreamServlet("/hystrix.stream"), "/hystrix.stream");
         }
 
-        @Bean
+        @Bean(name="applicationRepository")
         public ApplicationRepository eurekaRepository() {
             return new ApplicationRepository() {
 

@@ -1,49 +1,27 @@
-<table class="table" ng-if="counterData[0].values.length > 0">
+<table class="table" ng-if="counters.length > 0">
 	<thead>
-		<tr>
-			<th>Counters</th>
-			<th><small class="pull-right"><a href="api/instance/{{ instance.id }}/metrics">raw JSON</a></small></th>
-		</tr>
+	<tr>
+		<th>Counters</th>
+	</tr>
 	</thead>
 	<tbody>
-		<tr>
-			<td>
-				<div class="center-block" style="width: 800px; height:  {{ 75 + counterData[0].values.length * 20 }}px; position:relative; overflow: hidden;">
-					<nvd3-multi-bar-horizontal-chart id="counterChart" nodata="not available" 
-									data="counterData"
-									color="colorFunction()" 
-									tooltips="true" tooltipContent="toolTipContentFunction()"
-									showYAxis="true" yAxisTickFormat="intFormatFunction()"
-									showXAxis="true" xAxisTickFormat="abbreviateFunction(30, 1, 3)" 
-									margin="{ top: 25, left: 250, right: 25, bottom: 50}">
-	    			</nvd3-multi-bar-horizontal-chart>
-    				</div>
-    			</td>
-    		</tr>
+	<tr ng-repeat="counter in counters">
+		<td><simple-metric-bar for-metric="counter"  global-max="countersMax" ></simple-metric-bar></td>
+	</tr>
 	</tbody>
 </table>
-<table class="table" ng-if="gaugeData[0].values.length > 0">
+<table class="table" ng-if="gauges.length > 0">
 	<thead>
-		<tr>
-			<th>Gauges</th>
-			<th><small class="pull-right"><a href="api/instance/{{ instance.id }}/metrics">raw JSON</a></small></th>
-		</tr>
+	<tr>
+		<th>Gauges</th>
+	</tr>
 	</thead>
-	<tbody>    	
-    	<tr>
-    		<td>
-				<div class="center-block" style="width: 800px; height: {{ 75 + gaugeData[0].values.length * ( gaugeData.length * 10 ) }}px; position:relative;  overflow: hidden;">
-					<nvd3-multi-bar-horizontal-chart id="gaugesChart" nodata="not available" 
-									data="gaugeData"
-									color="colorFunction()"
-									tooltips="true" tooltipContent="toolTipContentFunction()" 
-									showYAxis="true" yAxisTickFormat="intFormatFunction()"
-									showXAxis="true" xAxisTickFormat="abbreviateFunction(30, 1, 3)"
-									showLegend="{{ gaugeData.length > 1 ? 'true' : 'false' }} " legendColor="colorFunction()" 
-									margin="{ top: 25, left: 250, right: 25, bottom: 50}">
-	    			</nvd3-multi-bar-horizontal-chart>
-    			</div>
-			</td>
-		</tr>
+	<tbody>
+	<tr ng-if="showRichGauges" ng-repeat="gauge in gauges">
+		<td><rich-metric-bar for-metric="gauge"  global-max="gaugesMax" ></rich-metric-bar></td>
+	</tr>
+	<tr ng-if="!showRichGauges" ng-repeat="gauge in gauges">
+		<td><simple-metric-bar for-metric="gauge"  global-max="gaugesMax" ></simple-metric-bar></td>
+	</tr>
 	</tbody>
 </table>

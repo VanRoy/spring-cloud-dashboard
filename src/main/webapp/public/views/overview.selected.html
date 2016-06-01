@@ -21,13 +21,13 @@
         <tr ng-repeat="instance in selectedApp.instances track by instance.id">
             <td>{{ instance.name }}<br/><span class="muted">{{ instance.url }}</span></td>
             <td>{{ instance.version }}</td>
-            <td><span ng-repeat="(name, value) in instance.info track by name">{{name}}: {{value}}<br></span></td>
+            <td><span ng-repeat="(name, value) in instance.info track by name" ng-if="name != 'version'" style="white-space: pre">{{value | flatten:name}}<br/></span></td>
             <td><span class="status-{{instance.status}}">{{ instance.status }}</span>
                 <span ng-show="instance.refreshing" class="refresh"></span></td>
             <td><span class="status-{{instance.health}}">{{ instance.health }}</span></td>
             <td>
                 <div class="btn-group pull-right" ng-hide="instance.status == null || instance.status == 'DOWN' || instance.status == 'OUT_OF_SERVICE' || instance.health == 'OFFLINE'">
-                    <a ui-sref="apps.details.metrics({id: instance.id})" class="btn btn-success">Details</a>
+                    <a ui-sref="apps.details.metrics({appId: id, instanceId: instance.id})" class="btn btn-success">Details</a>
                     <!--
                     <a ui-sref="apps.logging({id: instance.id})" class="btn btn-success">Logging</a>
                     <a ui-sref="apps.jmx({id: instance.id})" class="btn btn-success">JMX</a>
