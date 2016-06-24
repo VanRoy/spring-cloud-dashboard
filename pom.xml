@@ -11,7 +11,7 @@
 
     <groupId>com.github.vanroy</groupId>
     <artifactId>spring-cloud-dashboard</artifactId>
-    <version>1.1.0.RELEASE</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>Spring Cloud Dashboard</name>
     <description>Spring Cloud Dashboard</description>
     <url>https://github.com/vanroy/spring-cloud-dashboard</url>
