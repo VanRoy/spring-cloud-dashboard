@@ -2,7 +2,7 @@ spring-cloud-dashboard
 ================================
 
 This application provides a simple GUI to administrate Spring Cloud applications infrastructure.
-It's a fork of [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin) to manage applications registered in service registry (like Eureka).
+It's a fork of [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin) to manage applications registered in service registry (Netflix Eureka and AWS Beanstalk).
 
 At the moment it provides the following features for every registered application (most of then inherited of spring-boot-admin).
 
@@ -29,7 +29,7 @@ Add the following dependency to your pom.xml after you have build this project l
 <dependency>
 	<groupId>com.github.vanroy</groupId>
 	<artifactId>spring-cloud-dashboard</artifactId>
-	<version>1.0.0.RELEASE</version>
+	<version>1.1.0.RELEASE</version>
 </dependency>
 ```
 

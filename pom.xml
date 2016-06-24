@@ -11,7 +11,7 @@
 
     <groupId>com.github.vanroy</groupId>
     <artifactId>spring-cloud-dashboard</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0.RELEASE</version>
     <name>Spring Cloud Dashboard</name>
     <description>Spring Cloud Dashboard</description>
     <url>https://github.com/vanroy/spring-cloud-dashboard</url>
@@ -63,7 +63,7 @@
         <version.plugin.maven-source-plugin>2.1.2</version.plugin.maven-source-plugin>
         <version.plugin.maven-javadoc-plugin>2.7</version.plugin.maven-javadoc-plugin>
         <version.plugin.maven-release-plugin>2.5</version.plugin.maven-release-plugin>
-        <version.plugin.nexus-staging-maven-plugin>1.6.2</version.plugin.nexus-staging-maven-plugin>
+        <version.plugin.nexus-staging-maven-plugin>1.6.7</version.plugin.nexus-staging-maven-plugin>
         <version.plugin.maven-gpg-plugin>1.6</version.plugin.maven-gpg-plugin>
         <version.plugin.aspectj-maven-plugin>1.8</version.plugin.aspectj-maven-plugin>
         <!-- Source encoding -->
