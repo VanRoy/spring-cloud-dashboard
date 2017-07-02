@@ -29,7 +29,7 @@ Add the following dependency to your pom.xml after you have build this project l
 <dependency>
 	<groupId>com.github.vanroy</groupId>
 	<artifactId>spring-cloud-dashboard</artifactId>
-	<version>1.1.0.RELEASE</version>
+	<version>1.2.0.RELEASE</version>
 </dependency>
 ```
 

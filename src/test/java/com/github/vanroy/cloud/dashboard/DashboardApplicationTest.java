@@ -20,25 +20,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.github.vanroy.cloud.dashboard.config.CloudDashboardConfig;
 import com.github.vanroy.cloud.dashboard.repository.RegistryRepository;
 import com.github.vanroy.cloud.dashboard.turbine.MockStreamServlet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.google.common.collect.ImmutableList;
 
@@ -57,13 +53,14 @@ import static org.junit.Assert.assertNotNull;
  * 
  * @author Dennis Schulte
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DashboardApplicationTest.DashboardApplication.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0" })
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+    classes = DashboardApplicationTest.DashboardApplication.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 public class DashboardApplicationTest {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port = 0;
 
 	@Test
